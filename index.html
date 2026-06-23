@@ -19,15 +19,17 @@
     --water:#8fd3f0; --water-deep:#5bb6db;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; height:100%;}
+  html,body{margin:0; height:100%; overflow:hidden;}
   body{font-family:'Gaegu','Jua',system-ui,sans-serif; color:var(--ink);
     background:radial-gradient(1200px 700px at 50% -10%, #fff6e6, transparent 60%), linear-gradient(170deg,#ffe9c9,#f7d8ad 40%,#eec79a);
-    min-height:100%; display:flex; flex-direction:column; align-items:center; padding:12px; gap:9px; overflow-x:hidden;}
+    height:100vh; height:100dvh; display:flex; flex-direction:column; align-items:center; padding:0; gap:0; overflow:hidden;}
   .topbar{width:100%; max-width:920px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; justify-content:space-between;}
   .title{font-family:'Jua',sans-serif; font-size:clamp(19px,4.6vw,28px); color:#7a4b22; letter-spacing:.5px; text-shadow:0 2px 0 #fff4, 0 3px 6px #0001; display:flex; align-items:center; gap:8px;}
   .title .pop{display:inline-block; animation:wiggle 2.6s ease-in-out infinite;}
   @keyframes wiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
   .stats{display:flex; gap:6px; align-items:center; flex-wrap:wrap;}
+  .ctrlgrp{display:flex; gap:6px; align-items:center;}
+  .rename-btn{background:var(--panel); border:2px solid var(--panel-edge); border-radius:999px; padding:2px 8px; margin-left:4px; cursor:pointer; font-size:13px; box-shadow:0 2px 0 #0000000d;} .rename-btn:active{transform:translateY(2px);}
   .pill{background:var(--panel); border:2px solid var(--panel-edge); border-radius:999px; padding:5px 11px; font-family:'Jua',sans-serif; font-size:16px; color:#8a5a1e; display:flex; align-items:center; gap:5px; box-shadow:0 3px 0 #0000000d;}
   .pill.low{background:#ffe3e3; border-color:#ff9b9b; color:#c0392b; animation:lowpulse 1s ease-in-out infinite;}
   @keyframes lowpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -38,7 +40,7 @@
   .icon-btn.on{background:#ffe6ec; border-color:var(--accent); color:var(--accent-deep);}
 
   .stage-wrap{width:100%; max-width:920px;}
-  .habitat{position:relative; width:100%; aspect-ratio:16/10; border-radius:26px; border:10px solid var(--wood);
+  .habitat{position:relative; width:100%; aspect-ratio:16/13; border-radius:26px; border:10px solid var(--wood);
     background:linear-gradient(180deg,#fff0db 0%,#fff7ec 64%, #fbeccb 76%, var(--bedding) 82%, var(--bedding-deep) 100%);
     box-shadow:inset 0 0 0 4px #ffffff66, inset 0 -16px 36px #c79a5a44, 0 16px 40px #00000026; overflow:hidden; touch-action:none; transition:background .5s;}
   .habitat::after{content:""; position:absolute; inset:82% 0 0 0; pointer-events:none;
@@ -143,21 +145,80 @@
   .shop-btn.theme.sel{border-color:#a98ad6; box-shadow:0 0 0 3px #e6d8fa inset, 0 4px 0 #00000010;}
   .shop-btn.cant{opacity:.42;} .shop-btn.done{opacity:.6; border-color:#bfe0a8; background:linear-gradient(180deg,#fff,#f1fbe9);}
   .hint{text-align:center; color:var(--ink-soft); font-size:14px; margin-top:9px; min-height:18px;} .hint b{color:var(--accent-deep);}
+  .notice{position:absolute; left:50%; top:6%; transform:translateX(-50%) translateY(-8px); max-width:84%; background:#5a4632ee; color:#fff; padding:8px 16px; border-radius:16px; font-family:'Jua',sans-serif; font-size:15px; text-align:center; line-height:1.35; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:990; box-shadow:0 6px 16px #0004;}
+  .notice.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .notice b{color:#ffd27a;}
   .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%) translateY(20px); background:#5a4632; color:#fff; padding:8px 16px; border-radius:999px; font-family:'Jua',sans-serif; font-size:15px; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:50; box-shadow:0 6px 16px #0004;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .sticky-top{flex:none; z-index:30; width:100%; max-width:920px; display:flex; flex-direction:column; align-items:center; gap:9px; padding:10px 8px 10px; margin:0; background:linear-gradient(180deg,#ffe7c6 0%,#ffe7c6 70%,#f6dab0 100%); box-shadow:0 8px 14px -8px #0003;}
+  .sticky-top .topbar,.sticky-top .stage-wrap{margin:0;}
+  .item.playing .emoji{animation:toybounce .5s ease-in-out infinite;}
+  @keyframes toybounce{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-9px) rotate(-10deg)}75%{transform:translateY(-4px) rotate(10deg)}}
+  .modal-bg{position:fixed; inset:0; background:#0006; display:none; align-items:center; justify-content:center; z-index:60; padding:18px;}
+  .modal-bg.show{display:flex;}
+  .modal{background:var(--panel); border:3px solid var(--panel-edge); border-radius:20px; width:100%; max-width:460px; max-height:78vh; display:flex; flex-direction:column; box-shadow:0 20px 50px #0005; overflow:hidden;}
+  .modal-head{font-family:'Jua',sans-serif; font-size:18px; color:#8a5a1e; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--panel-edge);}
+  .modal-x{background:#fff0; border:none; font-size:17px; cursor:pointer; color:#8a7355; padding:4px 9px; border-radius:8px;}
+  .modal-x:active{background:#0001;}
+  .modal-sub{padding:9px 16px 3px; color:var(--ink-soft); font-size:13.5px;}
+  .modal-list{overflow-y:auto; padding:6px 12px 14px; display:flex; flex-direction:column; gap:7px;}
+  .diary-item{background:#fff; border:2px solid #f0e3c8; border-radius:13px; padding:9px 11px;}
+  .diary-item .couple{font-family:'Jua',sans-serif; font-size:14.5px; color:#6a4a26; display:flex; align-items:center; gap:4px; flex-wrap:wrap;}
+  .diary-item .baby{font-size:13px; color:#9a6f3a; margin-top:3px;}
+  .dot{width:12px; height:12px; border-radius:50%; display:inline-block; border:1.5px solid #00000022; vertical-align:middle; margin-right:1px;}
+  .diary-empty{text-align:center; color:var(--ink-soft); padding:26px 12px; font-size:14px; line-height:1.7;}
+  .ham-cap{position:absolute; left:50%; top:-12px; transform:translateX(-50%); font-size:21px; display:none; filter:drop-shadow(0 2px 1px #0003); z-index:5;}
+  .flyer{position:absolute; left:0; top:0; pointer-events:none; z-index:980; display:flex; flex-direction:column; align-items:center;}
+  .flyer .plane{font-size:30px;} .flyer .rider{width:30px; margin-top:-6px;} .flyer .rider svg{width:30px;height:auto;display:block;}
+  .shop-btn.study{background:linear-gradient(180deg,#fff,#eef3ff); border-color:#bcd0f3;}
+  .shop-btn.study.on{background:#dcebff; border-color:#3f8fd6; box-shadow:0 0 0 3px #cfe2fb inset, 0 4px 0 #00000010;}
+  .tab-content{flex:1 1 auto; min-height:0; width:100%; max-width:920px; margin-top:0; padding:8px 12px 16px; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .tabsec{display:none;} .tabsec.active{display:block;}
+  .tabbar{flex:none; z-index:40; width:100%; background:#fffaf1; border-top:2px solid var(--panel-edge); display:flex; justify-content:center; gap:2px; padding:6px 4px calc(6px + env(safe-area-inset-bottom)); box-shadow:0 -6px 16px #0001;}
+  .tabbar button{flex:1 1 0; max-width:130px; background:none; border:none; border-radius:12px; padding:5px 2px; font-family:'Jua',sans-serif; font-size:11px; color:#a98b63; display:flex; flex-direction:column; align-items:center; gap:1px; cursor:pointer;}
+  .tabbar button .ic{font-size:20px; line-height:1;}
+  .tabbar button.active{background:#fff0e0; color:#e0792a;}
+  .quest{background:#fff; border:2px solid #f0e3c8; border-radius:14px; padding:10px 12px; display:flex; align-items:center; gap:10px; margin-bottom:7px;}
+  .quest .qi{font-size:22px;} .quest .qmid{flex:1;} .quest .qname{font-family:'Jua',sans-serif; font-size:14.5px; color:#6a4a26;}
+  .quest .qbar{height:8px; background:#eee2c8; border-radius:99px; margin-top:5px; overflow:hidden;} .quest .qbar i{display:block; height:100%; background:linear-gradient(90deg,#ffd27a,#ffb74a); border-radius:99px;}
+  .quest .qprog{font-size:11.5px; color:#a98b63; margin-top:3px;}
+  .qbtn{font-family:'Jua',sans-serif; font-size:13px; border:none; border-radius:11px; padding:8px 12px; cursor:pointer; white-space:nowrap; box-shadow:0 3px 0 #00000015;}
+  .qbtn.ready{background:#ffce4a; color:#7a4b00;} .qbtn.ready:active{transform:translateY(2px);} .qbtn.wait{background:#efe6d4; color:#b09a78;} .qbtn.claimed{background:#cde7be; color:#4f8a3a;}
+  .book-sub{padding:4px 4px 8px; color:var(--ink-soft); font-size:14px;}
+  .book-item{background:#fff; border:2px solid #f0e3c8; border-radius:14px; padding:8px 10px; display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+  .book-no{font-family:'Jua',sans-serif; color:#c79a5a; font-size:13px; min-width:30px;}
+  .fam{display:flex; align-items:center; gap:5px; flex-wrap:wrap;}
+  .fam-mem{display:flex; flex-direction:column; align-items:center; font-family:'Jua',sans-serif; font-size:11px; color:#6a4a26; max-width:64px;}
+  .fam-mem span{margin-top:-3px; white-space:nowrap;} .fam-mem.baby span{color:#ef6a86;} .fam-x{font-size:13px;}
+  .mface{width:38px;} .mface svg{width:38px; height:auto; display:block;}
+  .book-empty,.quest-empty{text-align:center; color:var(--ink-soft); padding:24px 12px; font-size:14px; line-height:1.7;}
+  .toast{bottom:76px;}
+  .dlg-bg{position:fixed; inset:0; z-index:200; background:#00000055; display:none; align-items:center; justify-content:center; padding:24px;}
+  .dlg-bg.show{display:flex;}
+  .dlg{width:100%; max-width:330px; background:#fffaf1; border:3px solid var(--panel-edge); border-radius:22px; padding:20px 18px 16px; box-shadow:0 18px 40px #0005; text-align:center; animation:dlgpop .2s cubic-bezier(.3,1.5,.5,1);}
+  @keyframes dlgpop{from{transform:scale(.85); opacity:0;}to{transform:scale(1); opacity:1;}}
+  .dlg-msg{font-family:'Jua',sans-serif; font-size:17px; color:#6a4a26; line-height:1.5; margin-bottom:14px;}
+  .dlg-msg b{color:#e0792a;}
+  .dlg-input{width:100%; box-sizing:border-box; font-family:'Jua',sans-serif; font-size:17px; text-align:center; padding:10px; border:2px solid var(--panel-edge); border-radius:14px; margin-bottom:14px; color:#5a4632; outline:none; display:none;}
+  .dlg-input:focus{border-color:#ffb74a;}
+  .dlg-btns{display:flex; gap:10px;}
+  .dlg-btn{flex:1; font-family:'Jua',sans-serif; font-size:16px; border:none; border-radius:14px; padding:12px; cursor:pointer; box-shadow:0 3px 0 #00000015;}
+  .dlg-btn:active{transform:translateY(2px);}
+  .dlg-btn.no{background:#efe6d4; color:#9a7a52;}
+  .dlg-btn.yes{background:#ffce4a; color:#7a4b00;}
   @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;}}
 </style>
 </head>
 <body>
+  <div class="sticky-top">
   <div class="topbar">
-    <div class="title"><span class="pop">🐹</span> 햄스터 동산</div>
+    <div class="title"><span class="pop">🐹</span> <span id="houseName">햄스터 동산</span><button class="rename-btn" id="renameBtn" title="이름 바꾸기">✏️</button></div>
     <div class="stats">
       <div class="pill"><span class="coin-ico"></span><span id="coinCount">0</span></div>
       <div class="pill"><span class="dia-ico"></span><span id="diaCount">0</span></div>
       <div class="pill">🐹 <span id="hamCount">0</span></div>
       <div class="pill water-pill" id="waterPill">💧 <span id="waterPct">100</span>%</div>
-      <button class="icon-btn" id="musicBtn">🎵</button>
-      <button class="icon-btn" id="resetBtn" title="처음부터">↺</button>
+      <div class="ctrlgrp"><button class="icon-btn" id="musicBtn">🎵</button><button class="icon-btn" id="resetBtn" title="처음부터">↺</button></div>
     </div>
   </div>
   <div class="stage-wrap">
@@ -165,22 +226,28 @@
       <div class="sheen"></div>
       <div class="waterbottle"><div class="wb-cap"></div><div class="wb-tank"><div class="wb-water" id="wbWater"></div></div><div class="wb-tube"></div><div class="wb-spout"></div></div>
       <div class="deco food-bowl">🥣</div>
-      <div class="deco tunnel">🛢️</div>
+      <div class="notice" id="notice"></div>
     </div>
   </div>
+  </div><!--/sticky-top-->
 
+  <div class="tab-content">
+  <section class="tabsec active" data-tab="care">
   <div class="panel">
     <div class="panel-head">🐹 돌보기 <span>— 💌켜고 어른 햄스터를 누르면 결혼식!</span></div>
     <div class="panel-row">
       <div class="shop-btn adopt" id="adoptBtn"><span class="emoji">🐣</span><span class="label">입양</span><span class="price"><span class="coin-ico"></span><span id="adoptPrice">0</span></span></div>
       <div class="shop-btn marry" id="marryBtn"><span class="emoji">💌</span><span class="label">결혼시키기</span><span class="price" style="color:#3aa6cf;">💎+1</span></div>
+      <div class="shop-btn study" id="studyBtn"><span class="emoji">✈️</span><span class="label">유학 보내기</span><span class="price" style="color:#3f8fd6;">10분</span></div>
       <div class="shop-btn feed" data-food="seed"><span class="emoji">🌻</span><span class="label">해바라기씨</span><span class="price"><span class="coin-ico"></span>3</span></div>
       <div class="shop-btn feed" data-food="carrot"><span class="emoji">🥕</span><span class="label">당근</span><span class="price"><span class="coin-ico"></span>6</span></div>
       <div class="shop-btn feed" data-food="mealworm"><span class="emoji">🐛</span><span class="label">밀웜</span><span class="price"><span class="coin-ico"></span>12</span></div>
       <div class="shop-btn refill" id="refillBtn"><span class="emoji">🚰</span><span class="label">물 채우기</span><span class="price" style="color:#3a8fb0;">무료</span></div>
     </div>
   </div>
+  </section>
 
+  <section class="tabsec" data-tab="expand">
   <div class="panel">
     <div class="panel-head">🏗️ 집 확장 <span>— 위층을 짓고 사다리를 놓아요</span></div>
     <div class="panel-row">
@@ -190,12 +257,16 @@
       <div class="shop-btn exp" id="bLad1"><span class="emoji">🪜</span><span class="label">3층 사다리</span><span class="price"><span class="coin-ico"></span>55</span></div>
     </div>
   </div>
+  </section>
 
+  <section class="tabsec" data-tab="decorate">
   <div class="panel">
     <div class="panel-head">🛠️ 꾸미기 &amp; 친구 <span>— 놓고 드래그해서 옮겨요</span></div>
     <div class="panel-row" id="decorRow"></div>
   </div>
+  </section>
 
+  <section class="tabsec" data-tab="shop">
   <div class="panel">
     <div class="panel-head">💎 다이아 상점 <span>— 결혼하면 다이아가 생겨요</span></div>
     <div class="panel-row" id="diaRow"></div>
@@ -204,10 +275,43 @@
   <div class="panel">
     <div class="panel-head">🎨 배경 테마 <span>— 우리 집 분위기를 바꿔요</span></div>
     <div class="panel-row" id="themeRow"></div>
-    <div class="hint" id="hint">먹이를 누르면 햄스터가 달려가 먹어요. 어른이 되면 💌결혼시키기를 켜고 햄스터를 눌러 결혼식을 열어요!</div>
+  </div>
+  </section>
+
+  <section class="tabsec" data-tab="quest">
+    <div class="panel">
+      <div class="panel-head">🎯 퀘스트 <span>— 완료하면 받기를 눌러 보상!</span></div>
+      <div id="questList"></div>
+    </div>
+  </section>
+
+  <section class="tabsec" data-tab="book">
+    <div class="panel">
+      <div class="panel-head">📖 햄스터 가족 책 <span>— 결혼해 떠난 가족 기록</span></div>
+      <div class="book-sub" id="bookSub"></div>
+      <div id="bookList"></div>
+    </div>
+  </section>
+
+  <div class="hint" id="hint">먹이를 누르면 햄스터가 달려가 먹어요. 어른이 되면 💌결혼, 누구나 ✈️유학을 보낼 수 있어요!</div>
+  </div><!--/tab-content-->
+
+  <div class="tabbar" id="tabbar">
+    <button data-tab="care" class="active"><span class="ic">🐹</span>돌보기</button>
+    <button data-tab="decorate"><span class="ic">🛠️</span>꾸미기</button>
+    <button data-tab="expand"><span class="ic">🏗️</span>확장</button>
+    <button data-tab="shop"><span class="ic">💎</span>상점</button>
+    <button data-tab="quest"><span class="ic">🎯</span>퀘스트</button>
+    <button data-tab="book"><span class="ic">📖</span>책</button>
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <div class="dlg-bg" id="dlgBg"><div class="dlg">
+    <div class="dlg-msg" id="dlgMsg"></div>
+    <input class="dlg-input" id="dlgInput" maxlength="12" placeholder="이름 입력 (최대 12글자)">
+    <div class="dlg-btns"><button class="dlg-btn no" id="dlgNo">아니오</button><button class="dlg-btn yes" id="dlgYes">예</button></div>
+  </div></div>
 
 <script>
 "use strict";
@@ -246,7 +350,23 @@ const PALETTES=[
   {name:"민트",fur:"#a9dcc9",belly:"#e7f6ef",ear:"#c6e9da"},{name:"레몬",fur:"#efdb86",belly:"#fbf3cf",ear:"#f4e6ab"},
   {name:"하늘",fur:"#a9cbe6",belly:"#e6f1fa",ear:"#c6dcef"},{name:"딸기",fur:"#f0a6b6",belly:"#fce0e6",ear:"#f6c3cd"},
 ];
-const NAMES=["콩이","뭉이","떡이","보리","초코","모찌","단추","호두","밤톨","도토리","구름","뽀삐","코코","두부","만두","인절미","젤리","포비","초롱","방울","감자","고구마","팥이","쑥이","대추","은행"];
+const NAMES=["콩이","뭉이","떡이","보리","초코","모찌","단추","호두","밤톨","도토리","구름","뽀삐","코코","두부","만두","인절미","젤리","포비","초롱","방울","감자","고구마","팥이","쑥이","대추","은행","별이","달이","해님","솜이","눈송이","보름","노을","바다","산이","가을","봄이","여름","겨울","나비","토리","다롱","마루","보노","차차","라떼","모카","콩떡","깨알","참깨","흑임자","단풍","새싹","이슬","빵빵","송편","약과","호박","단지","깨비","두리","하리","보배","진주","호빵","찹쌀","메주","누룽지","미요","뭉치"];
+function usedNames(){ const set=new Set(); game.hamsters.forEach(h=>set.add(h.name)); game.abroad.forEach(a=>set.add(a.data.name)); return set; }
+function uniqueName(){ const used=usedNames(); const av=NAMES.filter(n=>!used.has(n)); if(av.length) return av[Math.floor(Math.random()*av.length)]; let i=2; while(i<999){ const n=NAMES[Math.floor(Math.random()*NAMES.length)]+i; if(!used.has(n)) return n; i++; } return NAMES[0]; }
+const STUDY_MS=10*60*1000, CAP_MS=60*1000;
+const QUESTS=[
+  {id:"adopt3",ic:"🐣",label:"햄스터 3마리 입양하기",goal:3,prog:()=>game.stats.adopted,reward:{coin:30}},
+  {id:"feed10",ic:"🍽️",label:"먹이 10번 주기",goal:10,prog:()=>game.stats.fed,reward:{coin:25}},
+  {id:"grow",ic:"🌟",label:"어른 햄스터 만들기",goal:1,prog:()=>game.stats.grownAdult,reward:{coin:40}},
+  {id:"floor2",ic:"🏗️",label:"2층 짓기",goal:1,prog:()=>game.floorsBuilt>=2?1:0,reward:{coin:40}},
+  {id:"floor3",ic:"🏗️",label:"3층 짓기",goal:1,prog:()=>game.floorsBuilt>=3?1:0,reward:{coin:90}},
+  {id:"marry1",ic:"💍",label:"햄스터 1쌍 결혼시키기",goal:1,prog:()=>game.diary.length,reward:{coin:30}},
+  {id:"marry3",ic:"💍",label:"햄스터 3쌍 결혼시키기",goal:3,prog:()=>game.diary.length,reward:{dia:1,coin:25}},
+  {id:"study1",ic:"✈️",label:"햄스터 유학 보내기",goal:1,prog:()=>game.stats.studied,reward:{coin:50}},
+  {id:"decor5",ic:"🛠️",label:"꾸미기 아이템 5개 놓기",goal:5,prog:()=>game.stats.decorBought,reward:{coin:30}},
+  {id:"lizard",ic:"🦎",label:"도마뱀 데려오기",goal:1,prog:()=>game.lizards.length>0?1:0,reward:{coin:30}},
+  {id:"frog",ic:"🐸",label:"개구리 데려오기",goal:1,prog:()=>game.frog?1:0,reward:{coin:30}},
+];
 const FOODS={ seed:{name:"해바라기씨",emoji:"🌻",cost:3,nut:7,joy:5,grow:0.018}, carrot:{name:"당근",emoji:"🥕",cost:6,nut:15,joy:9,grow:0.045}, mealworm:{name:"밀웜",emoji:"🐛",cost:12,nut:26,joy:18,grow:0.09} };
 const DECOR=[
   {type:"wheel",label:"쳇바퀴",cost:25,ic:"🎡"},
@@ -288,11 +408,11 @@ const WATER={x:0.90};
 const floorY=l=>FLOORS[l].y, floorX=l=>FLOORS[l].x;
 
 /* ================= State ================= */
-const game={coins:60,diamonds:0,water:100,floorsBuilt:1,ladders:[false,false],hamsters:[],lizards:[],frog:null,foods:[],drops:[],items:[],born:0,wedding:null,theme:"default",themesUnlocked:new Set(["default","sunset","forest","night"])};
+const game={houseName:"햄스터 동산",coins:60,diamonds:0,water:100,floorsBuilt:1,ladders:[false,false],hamsters:[],lizards:[],frog:null,foods:[],drops:[],items:[],born:0,wedding:null,diary:[],abroad:[],quests:{claimed:{}},stats:{adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0},theme:"default",themesUnlocked:new Set(["default","sunset","forest","night"])};
 const habitat=document.getElementById("habitat");
 const coinCountEl=document.getElementById("coinCount"), diaCountEl=document.getElementById("diaCount"), hamCountEl=document.getElementById("hamCount");
 const adoptPriceEl=document.getElementById("adoptPrice"), hintEl=document.getElementById("hint"), toastEl=document.getElementById("toast");
-const wbWater=document.getElementById("wbWater"), waterPctEl=document.getElementById("waterPct"), waterPill=document.getElementById("waterPill"), refillBtn=document.getElementById("refillBtn"), marryBtn=document.getElementById("marryBtn");
+const wbWater=document.getElementById("wbWater"), waterPctEl=document.getElementById("waterPct"), waterPill=document.getElementById("waterPill"), refillBtn=document.getElementById("refillBtn"), marryBtn=document.getElementById("marryBtn"), studyBtn=document.getElementById("studyBtn");
 
 const rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)], clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const adoptCost=()=>25+game.hamsters.filter(h=>!h._temp).length*18, itemsOf=t=>game.items.filter(i=>i.type===t);
@@ -302,6 +422,8 @@ function floorReachable(i){ if(i===0)return true; if(i>=game.floorsBuilt)return 
 function reachableFloors(){ const a=[]; for(let i=0;i<FLOORS.length;i++) if(floorReachable(i)) a.push(i); return a; }
 const reachWheels=()=>itemsOf("wheel").filter(w=>floorReachable(w.level));
 const reachIgloos=()=>itemsOf("igloo").filter(g=>floorReachable(g.level));
+const TOY_TYPES=["ball","balloon","bear"];
+const reachToys=()=>game.items.filter(i=>TOY_TYPES.includes(i.type)&&floorReachable(i.level));
 
 /* ================= Sprites ================= */
 function hamsterSVG(p){ return `<svg viewBox="0 0 100 94" xmlns="http://www.w3.org/2000/svg">
@@ -337,17 +459,18 @@ function frogSVG(){ return `<svg viewBox="0 0 92 72" xmlns="http://www.w3.org/20
 
 /* ================= Create hamster ================= */
 function createHamster(opts){ opts=opts||{}; const p=opts.palette||pick(PALETTES); const lvl=opts.level||0; const fx=floorX(lvl);
-  const h={ id:++game.born, name:opts.name||pick(NAMES), pal:p, sex:opts.sex||pick(["♂","♀"]), level:lvl,
+  const h={ id:++game.born, name:opts.name||uniqueName(), pal:p, sex:opts.sex||pick(["♂","♀"]), level:lvl,
     x:opts.x!==undefined?clamp(opts.x,fx[0]+0.04,fx[1]-0.04):rand(fx[0]+0.05,fx[1]-0.05), y:floorY(lvl),
     facing:1, growth:opts.growth||0.5, hunger:30, thirst:25, happiness:72, action:"idle", actT:rand(0.3,1.2),
     bob:Math.random()*6.28, path:[], food:null, eatT:0, item:null, coinT:rand(4,8), chase:0, _leaving:false, _temp:!!opts.temp, _hold:null };
   const el=document.createElement("div"); el.className="hamster";
-  el.innerHTML=`<div class="ham-shadow"></div><div class="ham-anchor"><div class="ham-body"><div class="ham-bubble"></div><div class="ham-name"></div><div class="ham-sprite">${hamsterSVG(p)}</div></div></div>`;
+  el.innerHTML=`<div class="ham-shadow"></div><div class="ham-anchor"><div class="ham-body"><div class="ham-cap">🎓</div><div class="ham-bubble"></div><div class="ham-name"></div><div class="ham-sprite">${hamsterSVG(p)}</div></div></div>`;
   el.addEventListener("pointerdown",e=>{e.stopPropagation(); tapHamster(h);}); habitat.appendChild(el);
   h.el=el; h.shadowEl=el.querySelector(".ham-shadow"); h.anchorEl=el.querySelector(".ham-anchor"); h.bodyEl=el.querySelector(".ham-body");
-  h.spriteEl=el.querySelector(".ham-sprite"); h.bubbleEl=el.querySelector(".ham-bubble"); h.cheeks=el.querySelectorAll(".cheek"); h.nameEl=el.querySelector(".ham-name");
+  h.spriteEl=el.querySelector(".ham-sprite"); h.bubbleEl=el.querySelector(".ham-bubble"); h.cheeks=el.querySelectorAll(".cheek"); h.nameEl=el.querySelector(".ham-name"); h.capEl=el.querySelector(".ham-cap");
   h.nameEl.innerHTML=nameHTML(h); game.hamsters.push(h); updateHUD(); return h; }
 function removeHamster(h){ if(h.el&&h.el.parentNode) h.el.parentNode.removeChild(h.el); const i=game.hamsters.indexOf(h); if(i>=0) game.hamsters.splice(i,1); updateHUD(); }
+function wearCap(h){ if(!h.capEl)return; h.capEl.style.display="block"; clearTimeout(h._cap); h._cap=setTimeout(()=>{ if(h.capEl) h.capEl.style.display="none"; }, CAP_MS); }
 
 /* ================= Lizard / Frog ================= */
 function createLizard(){ const lz={kind:"lizard", x:rand(0.2,0.5), y:floorY(0), level:0, facing:1, action:"idle", actT:rand(0.3,1), bob:Math.random()*6.28, path:[], coin:null, flickT:0, didEat:false};
@@ -374,23 +497,39 @@ function startWander(h){ const fls=reachableFloors(); const lvl=pick(fls); const
 function goDrink(h){ planTo(h,0,WATER.x); h.action="toWater"; }
 function goWheel(h,w){ if(!w)return; h.item=w; h.chase=0; planTo(h,w.level,w.x); h.action="toWheel"; }
 function goIgloo(h,g){ if(!g)return; h.item=g; planTo(h,g.level,g.x); h.action="toIgloo"; }
+function goPlay(h,t){ if(!t)return; h.item=t; h.chase=0; planTo(h,t.level,t.x); h.action="toPlay"; }
 function nearestItem(h,arr){ let b=null,bd=9; for(const it of arr){const d=Math.abs(it.x-h.x)+(it.level!==h.level?0.5:0); if(d<bd){bd=d;b=it;}} return b; }
-function decide(h){ if(h.thirst>60 && game.water>5){ goDrink(h); return; } const wheels=reachWheels(), igloos=reachIgloos(), r=Math.random();
-  if(wheels.length && h.happiness>45 && r<0.30){ goWheel(h,nearestItem(h,wheels)); return; }
-  if(igloos.length && r<0.50){ goIgloo(h,nearestItem(h,igloos)); return; } startWander(h); }
+function decide(h){ if(h.thirst>60 && game.water>5){ goDrink(h); return; } const toys=reachToys(), wheels=reachWheels(), igloos=reachIgloos(), r=Math.random();
+  if(toys.length && r<0.22){ goPlay(h,nearestItem(h,toys)); return; }
+  if(wheels.length && h.happiness>45 && r<0.50){ goWheel(h,nearestItem(h,wheels)); return; }
+  if(igloos.length && r<0.72){ goIgloo(h,nearestItem(h,igloos)); return; } startWander(h); }
 function showBubble(h,e,ms){ h.bubbleEl.textContent=e; h.bubbleEl.classList.add("show"); clearTimeout(h._b); h._b=setTimeout(()=>h.bubbleEl.classList.remove("show"),ms||1100); }
 function setCheeks(h,r){ h.cheeks.forEach(c=>c.setAttribute("r",r)); }
-function tapHamster(h){ if(marryMode){
-    if(h._temp||h._hold||h._leaving){ return; }
-    if(h.growth>=1.0){ setMarryMode(false); startWedding(h); } else { Sound.deny(); flashHint(`<b>${h.name}</b>는 아직 어른이 아니에요. 더 키워주세요!`); } return; }
+function tapHamster(h){
+  if(selectMode==="marry"){ if(h._temp||h._hold||h._leaving)return; if(h.growth>=1.0){ setMode(null); startWedding(h); } else { Sound.deny(); flashHint(`<b>${h.name}</b>는 아직 어른이 아니에요. 더 키워주세요!`); } return; }
+  if(selectMode==="study"){ if(h._temp||h._hold||h._leaving)return; setMode(null); sendAbroad(h); return; }
   if(h._leaving||h._hold)return; Sound.squeak(h.growth); h.happiness=clamp(h.happiness+6,0,100); showBubble(h,pick(["💕","🎵","✨","💛"]));
   spawnParticles(h.x,h.y-0.10,pick(["💕","💗","✨"]),5); const w=nearestItem(h,reachWheels()); if(w)goWheel(h,w); else startWander(h); }
 
-/* ================= Marriage mode + wedding ceremony ================= */
-let marryMode=false;
-function setMarryMode(on){ marryMode=on; marryBtn.classList.toggle("on",on);
-  liveHams().forEach(h=>h.el.classList.toggle("armed", on && h.growth>=1.0 && !h._hold && !h._leaving));
-  if(on) flashHint("결혼시킬 <b>어른</b> 햄스터를 누르세요 💌 (빈 곳을 누르면 취소)"); }
+/* ================= Select modes + study abroad ================= */
+let selectMode=null;
+function setMode(m){ selectMode=(selectMode===m)?null:m; marryBtn.classList.toggle("on",selectMode==="marry"); studyBtn.classList.toggle("on",selectMode==="study");
+  liveHams().forEach(h=>{ const arm=selectMode&&!h._hold&&!h._leaving&&(selectMode==="study"||h.growth>=1.0); h.el.classList.toggle("armed",!!arm); });
+  if(selectMode==="marry") flashHint("결혼시킬 <b>어른</b> 햄스터를 누르세요 💌 (빈 곳=취소)");
+  else if(selectMode==="study") flashHint("유학 보낼 햄스터를 누르세요 ✈️ (빈 곳=취소)"); }
+function makeFlyer(pal){ const el=document.createElement("div"); el.className="flyer"; el.innerHTML=`<span class="plane">✈️</span><span class="rider">${hamsterSVG(pal)}</span>`; habitat.appendChild(el); return el; }
+function sendAbroad(h){ if(h._temp||h._leaving||h._hold)return; const W=habitat.clientWidth,H=habitat.clientHeight; const pal=h.pal, data={name:h.name,palName:h.pal.name,sex:h.sex,level:0,growth:h.growth};
+  Sound.whoosh(); wearCap(h); const sx=h.x*W, sy=(h.y-0.08)*H; const fl=makeFlyer(pal); fl.style.transform=`translate(${sx}px,${sy}px) translate(-50%,-50%)`; removeHamster(h);
+  fl.animate([{transform:`translate(${sx}px,${sy}px) translate(-50%,-50%) scale(1)`,opacity:1},{transform:`translate(${W*1.15}px,${-H*0.25}px) translate(-50%,-50%) scale(.6)`,opacity:0}],{duration:1500,easing:"ease-in"}).onfinish=()=>fl.remove();
+  game.abroad.push({data,returnAt:Date.now()+STUDY_MS}); game.stats.studied++; toast(`✈️ ${data.name} 유학 떠났어요! 10분 뒤 졸업해 돌아와요 🎓`); updateHUD(); if(activeTab==="quest")renderQuests(); saveGame(); }
+function returnHamster(data){ const W=habitat.clientWidth,H=habitat.clientHeight; const pal=PALETTES.find(p=>p.name===data.palName)||PALETTES[0]; const lx=rand(0.18,0.55), gy=floorY(0);
+  Sound.whoosh(); const fl=makeFlyer(pal); fl.animate([{transform:`translate(${-W*0.2}px,${-H*0.25}px) translate(-50%,-50%) scale(.6)`,opacity:0},{transform:`translate(${lx*W}px,${(gy-0.05)*H}px) translate(-50%,-50%) scale(1)`,opacity:1}],{duration:1500,easing:"ease-out"}).onfinish=()=>{
+    fl.remove(); const h=createHamster({palette:pal,sex:data.sex,name:data.name,level:0,growth:data.growth,x:lx}); wearCap(h); showBubble(h,"🎓");
+    Sound.fanfare(); spawnParticles(lx,gy-0.12,"🎉",7); spawnParticles(lx,gy-0.08,"🎓",3);
+    liveHams().forEach(o=>{ if(o!==h && Math.random()<0.9) showBubble(o,pick(["🎉","👏","💕","🥳"]),1400); });
+    let msg=`🎓 ${data.name} 유학에서 돌아왔어요! 다들 축하해줘요`; if(Math.random()<0.18){ game.diamonds+=1; msg+="  💎+1"; spawnParticles(lx,gy-0.16,"💎",3); } updateHUD(); toast(msg); if(activeTab==="quest")renderQuests(); saveGame();
+  }; }
+function checkReturns(){ const now=Date.now(); for(let i=game.abroad.length-1;i>=0;i--){ if(now>=game.abroad[i].returnAt){ const a=game.abroad.splice(i,1)[0]; returnHamster(a.data); } } }
 function makeArch(){ const el=document.createElement("div"); el.className="arch";
   el.innerHTML=`<div class="bow"></div><div class="post l"></div><div class="post r"></div>
     <div class="fl" style="left:45%;top:-7%;font-size:20px">💗</div>
@@ -412,21 +551,24 @@ function startWedding(groom){ if(game.wedding){ flashHint("이미 결혼식이 �
 function weddingCheer(){ const w=game.wedding; if(!w)return; Sound.fanfare(); spawnParticles(w.cx,w.gy-0.14,"🎉",6); spawnParticles(w.cx,w.gy-0.10,"💕",5);
   showBubble(w.groom,"💍"); showBubble(w.bride,"💍");
   w.cheer=setInterval(()=>{ if(!game.wedding)return; const g=w.guests.length?pick(w.guests):pick([w.groom,w.bride]); showBubble(g,pick(["🎉","👏","💕","✨","🥳"])); spawnParticles(w.cx+rand(-0.13,0.13),w.gy-0.15,pick(["🎊","💕","✨","🎉"]),2); },520); }
-function weddingFinale(){ const w=game.wedding; if(!w)return; clearInterval(w.cheer); Sound.sparkle(); spawnParticles(w.cx,w.gy-0.13,"💞",8);
-  w.groom.el.classList.add("leaving"); w.groom.el.style.opacity=0; w.bride.el.classList.add("leaving"); w.bride.el.style.opacity=0;
-  setTimeout(()=>{ const bpal=Math.random()<0.5?w.groom.pal:w.bride.pal; removeHamster(w.groom); removeHamster(w.bride);
-    const baby=createHamster({palette:bpal,x:w.cx,level:0}); showBubble(baby,"👶"); spawnParticles(baby.x,baby.y-0.05,"💕",5); spawnParticles(baby.x,baby.y-0.16,"💎",3);
-    game.diamonds+=1; updateHUD(); toast(`👶 새끼 ${baby.name} 탄생!  💎 +1`);
-    w.guests.forEach(g=>{ g._hold=null; g._guest=false; g._faceX=undefined; g.el.classList.remove("armed"); g.action="idle"; g.actT=rand(0.3,1.2); });
-    w.arch.el.style.opacity=0; setTimeout(()=>{ if(w.arch.el.parentNode) w.arch.el.parentNode.removeChild(w.arch.el); },600); game.wedding=null;
-  },1000); }
+function weddingFinale(){ const w=game.wedding; if(!w)return; clearInterval(w.cheer); Sound.fanfare(); spawnParticles(w.cx,w.gy-0.13,"💞",8);
+  const babyPal=Math.random()<0.5?w.groom.pal:w.bride.pal, babySex=pick(["♂","♀"]), babyName=uniqueName();
+  const baby=createHamster({palette:babyPal,sex:babySex,name:babyName,x:w.cx,level:0,temp:true}); baby._hold={x:w.cx,y:w.gy,level:0}; baby._faceX=w.cx+0.01; showBubble(baby,"👶"); spawnParticles(w.cx,w.gy-0.05,"💕",5); spawnParticles(w.cx,w.gy-0.16,"💎",3);
+  game.diary.push({a:w.groom.name,aSex:w.groom.sex,aPal:w.groom.pal.name,b:w.bride.name,bSex:w.bride.sex,bPal:w.bride.pal.name,baby:babyName,babySex:babySex,babyPal:babyPal.name,t:Date.now()});
+  game.diamonds+=1; updateHUD(); toast(`💍 ${w.groom.name} 가족이 아기와 함께 새 집으로 떠났어요! 💎+1`);
+  setTimeout(()=>{ [w.groom,w.bride,baby].forEach(c=>{ c.el.classList.add("leaving"); c.el.style.opacity=0; });
+    setTimeout(()=>{ removeHamster(w.groom); removeHamster(w.bride); removeHamster(baby);
+      w.guests.forEach(g=>{ g._hold=null; g._guest=false; g._faceX=undefined; g.el.classList.remove("armed"); g.action="idle"; g.actT=rand(0.3,1.2); });
+      w.arch.el.style.opacity=0; setTimeout(()=>{ if(w.arch.el.parentNode) w.arch.el.parentNode.removeChild(w.arch.el); },600); game.wedding=null;
+      if(activeTab==="book") renderBook(); if(activeTab==="quest") renderQuests(); saveGame();
+    },1100); },1000); }
 
 /* ================= Food ================= */
 function dropFood(type){ const f=FOODS[type];
   if(liveHams().length===0){ Sound.deny(); flashHint("먼저 햄스터를 입양해 주세요! 🐣"); return; }
   if(game.coins<f.cost){ Sound.deny(); flashHint(`코인이 부족해요! <b>${f.name}</b>은 ${f.cost}코인이에요.`); return; }
   if(game.foods.length>18){ flashHint("먹이가 너무 많아요. 다 먹을 때까지 기다려요 🍽️"); return; }
-  game.coins-=f.cost; Sound.pop(); const fls=reachableFloors(); let lvl=0; if(fls.length>1 && Math.random()<0.35) lvl=pick(fls.filter(x=>x!==0)); const fx=floorX(lvl);
+  game.coins-=f.cost; game.stats.fed++; Sound.pop(); const fls=reachableFloors(); let lvl=0; if(fls.length>1 && Math.random()<0.35) lvl=pick(fls.filter(x=>x!==0)); const fx=floorX(lvl);
   const food={type,level:lvl,x:rand(fx[0]+0.05,fx[1]-0.05),y:floorY(lvl),claimed:null}; const el=document.createElement("div"); el.className="food"; el.textContent=f.emoji; habitat.appendChild(el); food.el=el; game.foods.push(food); positionFood(food); updateHUD(); }
 function positionFood(food){ const W=habitat.clientWidth,H=habitat.clientHeight; food.el.style.left=(food.x*W)+"px"; food.el.style.top=(food.y*H)+"px"; food.el.style.zIndex=55+Math.round(food.y*100); }
 function removeFood(food){ if(food.el&&food.el.parentNode)food.el.parentNode.removeChild(food.el); const i=game.foods.indexOf(food); if(i>=0)game.foods.splice(i,1); }
@@ -452,11 +594,9 @@ function makeItemEl(type,skin,emo){ const el=document.createElement("div"); el.c
 function placeItem(type,skin,emo){ if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return null; }
   const it={type,skin:skin||null,emo:emo||null,level:0,x:rand(0.15,0.55),y:floorY(0)}; const el=makeItemEl(type,skin,emo); habitat.appendChild(el); it.el=el; it.viz=el.querySelector(".wheelviz"); game.items.push(it); makeDraggable(it); renderItem(it); return it; }
 function buyDecor(def){ if(game.coins<def.cost){ Sound.deny(); flashHint(`코인이 부족해요! <b>${def.label}</b>은 ${def.cost}코인이에요.`); return; }
-  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } game.coins-=def.cost; Sound.place();
-  const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`${def.label} 놓기 완료! 드래그해서 옮겨보세요 ✋`); } }
+  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (코인 ${def.cost}개)`, ()=>{ game.coins-=def.cost; game.stats.decorBought++; Sound.place(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`${def.label} 놓기 완료! 드래그해서 옮겨보세요 ✋`); } }); }
 function buyDiaItem(def){ if(game.diamonds<def.dia){ Sound.deny(); flashHint(`💎가 부족해요! <b>${def.label}</b>은 💎${def.dia}개예요.`); return; }
-  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } game.diamonds-=def.dia; Sound.sparkle();
-  const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`✨ ${def.label} 놓기 완료! 드래그해서 옮겨보세요`); } }
+  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (💎 ${def.dia}개)`, ()=>{ game.diamonds-=def.dia; game.stats.decorBought++; Sound.sparkle(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`✨ ${def.label} 놓기 완료! 드래그해서 옮겨보세요`); } }); }
 function renderItem(it){ const W=habitat.clientWidth,H=habitat.clientHeight; if(it.type==="wheel"){ const s=Math.max(58,0.16*W); it.el.style.width=s+"px"; it.el.style.height=s+"px"; }
   it.el.style.left=(it.x*W)+"px"; it.el.style.top=(it.y*H)+"px"; if(!it._drag) it.el.style.zIndex=50+Math.round(it.y*100); }
 function makeDraggable(it){ const el=it.el; let dragging=false,moved=false;
@@ -484,9 +624,9 @@ function updateLizard(lz,dt,W,H){
 
 /* ================= Buy helpers ================= */
 function buyLizard(){ if(game.lizards.length>=LIZARD_MAX){ Sound.deny(); flashHint(`도마뱀은 ${LIZARD_MAX}마리까지예요 🦎`); return; } if(game.coins<LIZARD_COST){ Sound.deny(); flashHint(`코인이 부족해요! 도마뱀은 ${LIZARD_COST}코인이에요.`); return; }
-  game.coins-=LIZARD_COST; const lz=createLizard(); Sound.place(); spawnParticles(lz.x,lz.y-0.06,"✨",6); toast("도마뱀씨 등장! 코인을 메롱~ 주워줘요 🦎"); updateHUD(); }
+  uiConfirm(`도마뱀 데려올까요?  (코인 ${LIZARD_COST}개)`, ()=>{ game.coins-=LIZARD_COST; const lz=createLizard(); Sound.place(); spawnParticles(lz.x,lz.y-0.06,"✨",6); toast("도마뱀씨 등장! 코인을 메롱~ 주워줘요 🦎"); updateHUD(); }); }
 function buyFrog(){ if(game.frog){ Sound.deny(); flashHint("개구리는 한 마리면 충분해요 🐸"); return; } if(game.coins<FROG_COST){ Sound.deny(); flashHint(`코인이 부족해요! 개구리는 ${FROG_COST}코인이에요.`); return; }
-  game.coins-=FROG_COST; createFrog(); Sound.place(); toast("개구리씨 등장! 물 50% 아래면 채워줘요 🐸"); updateHUD(); }
+  uiConfirm(`개구리 데려올까요?  (코인 ${FROG_COST}개)`, ()=>{ game.coins-=FROG_COST; createFrog(); Sound.place(); toast("개구리씨 등장! 물 50% 아래면 채워줘요 🐸"); updateHUD(); }); }
 
 /* ================= Water ================= */
 function updateWater(){ const pct=Math.round(game.water); if(wbWater)wbWater.style.height=pct+"%"; if(waterPctEl)waterPctEl.textContent=pct; if(waterPill)waterPill.classList.toggle("low",pct<=20); if(refillBtn)refillBtn.classList.toggle("cant",pct>=100); }
@@ -494,19 +634,19 @@ function frogSquirt(){ const fr=game.frog; if(!fr)return; fr.squirtT=1.2; fr.el.
 
 /* ================= Floor / ladder build ================= */
 function buyFloor(target){ const idx=target-1; if(game.floorsBuilt>idx){ return; } if(idx!==game.floorsBuilt){ Sound.deny(); flashHint("아래층부터 지어야 해요!"); return; }
-  const cost=target===2?70:140; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! ${target}층은 ${cost}코인이에요.`); return; } game.coins-=cost; game.floorsBuilt=target; Sound.chime(); layout(); updateHUD(); toast(`🏗️ ${target}층이 생겼어요! 사다리도 놓아주세요 🪜`); }
+  const cost=target===2?70:140; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! ${target}층은 ${cost}코인이에요.`); return; } uiConfirm(`${target}층 지을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.floorsBuilt=target; Sound.chime(); layout(); updateHUD(); toast(`🏗️ ${target}층이 생겼어요! 사다리도 놓아주세요 🪜`); }); }
 function buyLadder(l){ if(game.ladders[l]) return; if(game.floorsBuilt < l+2){ Sound.deny(); flashHint("먼저 위층을 지어야 사다리를 놓을 수 있어요!"); return; } if(l>0 && !game.ladders[l-1]){ Sound.deny(); flashHint("아래 사다리부터 놓아주세요!"); return; }
-  const cost=l===0?35:55; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 사다리는 ${cost}코인이에요.`); return; } game.coins-=cost; game.ladders[l]=true; Sound.place(); layout(); updateHUD(); toast(`🪜 ${l+2}층 사다리 완성! 햄스터들이 올라가요`); }
+  const cost=l===0?35:55; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 사다리는 ${cost}코인이에요.`); return; } uiConfirm(`${l+2}층 사다리 놓을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.ladders[l]=true; Sound.place(); layout(); updateHUD(); toast(`🪜 ${l+2}층 사다리 완성! 햄스터들이 올라가요`); }); }
 
 /* ================= Theme ================= */
 function applyTheme(t){ habitat.style.background=t.bg; game.theme=t.key; updateThemeBtns(); }
 function buyTheme(t){ if(game.themesUnlocked.has(t.key)){ applyTheme(t); Sound.pop(); return; }
   if(game.diamonds<t.dia){ Sound.deny(); flashHint(`💎가 부족해요! <b>${t.label}</b> 테마는 💎${t.dia}개예요.`); return; }
-  game.diamonds-=t.dia; game.themesUnlocked.add(t.key); Sound.sparkle(); applyTheme(t); updateHUD(); toast(`🎨 ${t.label} 테마를 열었어요!`); }
+  uiConfirm(`${t.label} 테마 살까요?  (💎 ${t.dia}개)`, ()=>{ game.diamonds-=t.dia; game.themesUnlocked.add(t.key); Sound.sparkle(); applyTheme(t); updateHUD(); toast(`🎨 ${t.label} 테마를 열었어요!`); }); }
 
 /* ================= Game loop ================= */
 let lastT=performance.now();
-function loop(now){ const dt=Math.min(0.05,(now-lastT)/1000); lastT=now; const W=habitat.clientWidth,H=habitat.clientHeight; const ridden=new Set();
+function loop(now){ const dt=Math.min(0.05,(now-lastT)/1000); lastT=now; const W=habitat.clientWidth,H=habitat.clientHeight; const ridden=new Set(), played=new Set();
   if(game.frog){ const fr=game.frog; if(fr.squirtT>0){ fr.squirtT-=dt; if(fr.squirtT<=0) fr.el.classList.remove("squirt"); } else if(game.water<50){ frogSquirt(); } }
 
   for(const h of game.hamsters){
@@ -522,13 +662,13 @@ function loop(now){ const dt=Math.min(0.05,(now-lastT)/1000); lastT=now; const W
       for(const f of game.foods){ if(!floorReachable(f.level))continue; if(f.claimed&&f.claimed!==h)continue; const d=Math.abs(f.x-h.x)+(f.level!==h.level?0.5:0); if(d<bd){bd=d;best=f;} } if(best){ best.claimed=h; h.food=best; planTo(h,best.level,best.x); h.action="toFood"; } }
     if(!h._leaving && (h.action==="idle"||(h.action==="walk"&&onFloor(h))) && h.thirst>78 && game.water>5){ goDrink(h); }
 
-    let speed=0.155+(1.1-Math.min(h.growth,1.1))*0.05, running=false, sleeping=false;
+    let speed=0.155+(1.1-Math.min(h.growth,1.1))*0.05, running=false, sleeping=false, playing=false;
     if(h.action==="idle"){ h.actT-=dt; if(h.actT<=0 && !h._leaving) decide(h); }
     else if(h.action==="walk"){ if(advance(h,speed,dt)){ h.action="idle"; h.actT=rand(0.4,2.2); } }
     else if(h.action==="toFood"){ const f=h.food; if(!f||game.foods.indexOf(f)<0){ h.food=null; h.action="idle"; h.actT=0.3; } else if(advance(h,speed*1.12,dt)){ h.action="eat"; h.eatT=1.0; setCheeks(h,8.5); Sound.nibble(); } }
-    else if(h.action==="eat"){ h.eatT-=dt; if(h.eatT<=0){ const f=h.food; if(f&&game.foods.indexOf(f)>=0){ const info=FOODS[f.type]; h.hunger=clamp(h.hunger-info.nut,0,100); h.happiness=clamp(h.happiness+info.joy,0,100);
+    else if(h.action==="eat"){ h.eatT-=dt; if(Math.random()<dt*4) spawnParticles(h.x+rand(-0.03,0.03),h.y-0.07,pick(["✨","💛"]),1); if(h.eatT<=0){ const f=h.food; if(f&&game.foods.indexOf(f)>=0){ const info=FOODS[f.type]; h.hunger=clamp(h.hunger-info.nut,0,100); h.happiness=clamp(h.happiness+info.joy,0,100);
           const before=stageName(h.growth); h.growth=clamp(h.growth+info.grow,0.5,1.35); const after=stageName(h.growth); showBubble(h,"😋"); spawnParticles(h.x,h.y-0.10,pick(["💛","✨","🌟"]),3);
-          if(before!==after){ showBubble(h,"🎉"); spawnParticles(h.x,h.y-0.12,"⬆️",4); flashHint(`<b>${h.name}</b>(이)가 <b>${after}</b> 햄스터로 자랐어요!`); } removeFood(f); } h.food=null; setCheeks(h,0); h.action="idle"; h.actT=rand(0.3,1.0); } }
+          if(before!==after){ showBubble(h,"🎉"); spawnParticles(h.x,h.y-0.12,"⬆️",4); flashHint(`<b>${h.name}</b>(이)가 <b>${after}</b> 햄스터로 자랐어요!`); if(after==="어른"){ game.stats.grownAdult++; if(activeTab==="quest")renderQuests(); } } removeFood(f); } h.food=null; setCheeks(h,0); h.action="idle"; h.actT=rand(0.3,1.0); } }
     else if(h.action==="toWater"){ if(advance(h,speed,dt)){ h.action="drink"; h.actT=1.4; Sound.drink(); showBubble(h,"💧"); } }
     else if(h.action==="drink"){ h.actT-=dt; if(Math.random()<dt*2) spawnParticles(h.x+0.01,h.y-0.06,"💧",1); if(h.actT<=0){ if(game.water>0){ h.thirst=0; game.water=clamp(game.water-12,0,100); updateWater(); h.happiness=clamp(h.happiness+5,0,100); } else { showBubble(h,"💧❓"); h.happiness=clamp(h.happiness-3,0,100); } h.action="idle"; h.actT=rand(0.3,1.0); } }
     else if(h.action==="toWheel"){ const w=h.item; if(!w||game.items.indexOf(w)<0){ h.item=null; h.action="idle"; h.actT=0.3; } else{ if(w.level===h.level && h.path.length) h.path[h.path.length-1]={x:w.x,y:w.y,level:w.level};
@@ -536,16 +676,20 @@ function loop(now){ const dt=Math.min(0.05,(now-lastT)/1000); lastT=now; const W
     else if(h.action==="wheel"){ const w=h.item; if(!w||game.items.indexOf(w)<0){ h.item=null; h.action="idle"; h.actT=0.3; } else{ running=true; ridden.add(w); h.x=w.x; h.y=w.y; h.level=w.level; h.happiness=clamp(h.happiness+dt*5,0,100); h.hunger=clamp(h.hunger+dt*0.3,0,100); if(Math.random()<dt*0.7) Sound.squeak(h.growth*1.3); h.actT-=dt; if(h.actT<=0){ h.action="idle"; h.actT=rand(0.3,1.2); } } }
     else if(h.action==="toIgloo"){ const g=h.item; if(!g||game.items.indexOf(g)<0){ h.item=null; h.action="idle"; h.actT=0.3; } else{ planTo(h,g.level,g.x); if(advance(h,speed,dt)){ h.action="sleep"; h.actT=rand(4,8); } } }
     else if(h.action==="sleep"){ sleeping=true; h.happiness=clamp(h.happiness+dt*1.2,0,100); h.thirst=clamp(h.thirst+dt*0.2,0,100); h.bubbleEl.textContent="💤"; h.bubbleEl.classList.add("show"); h.actT-=dt; if(h.actT<=0){ h.bubbleEl.classList.remove("show"); h.item=null; h.action="idle"; h.actT=rand(0.3,1.0); } }
+    else if(h.action==="toPlay"){ const tobj=h.item; if(!tobj||game.items.indexOf(tobj)<0){ h.item=null; h.action="idle"; h.actT=0.3; } else{ if(tobj.level===h.level && h.path.length) h.path[h.path.length-1]={x:tobj.x,y:tobj.y,level:tobj.level}; if(advance(h,speed,dt)){ if(Math.abs(tobj.x-h.x)<0.07&&tobj.level===h.level){ h.action="play"; h.actT=rand(2.5,5); Sound.squeak(h.growth); } else if(++h.chase>3){ h.item=null; h.action="idle"; h.actT=0.3; } else planTo(h,tobj.level,tobj.x); } } }
+    else if(h.action==="play"){ const tobj=h.item; if(!tobj||game.items.indexOf(tobj)<0){ h.item=null; h.action="idle"; h.actT=0.3; } else{ playing=true; played.add(tobj); h.happiness=clamp(h.happiness+dt*4,0,100); h.hunger=clamp(h.hunger+dt*0.2,0,100); if(Math.random()<dt*1.0) showBubble(h,pick(["⚽","🎵","💕","😆"]),700); if(Math.random()<dt*1.4) spawnParticles(tobj.x+rand(-0.03,0.03),tobj.y-0.10,pick(["💕","✨","🎵"]),1); h.actT-=dt; if(h.actT<=0){ h.item=null; h.action="idle"; h.actT=rand(0.4,1.4); } } }
 
-    if(!h._leaving){ h.coinT-=dt; if(h.coinT<=0){ h.coinT=rand(6,11); if(h.happiness>52){ const v=clamp(Math.round(h.growth*3+(h.happiness-55)/22),1,8); dropCoin(h.x+rand(-0.04,0.04),h.y-0.10,v,h.level); showBubble(h,"🪙",700); } } }
+    if(!h._leaving){ h.coinT-=dt; if(h.coinT<=0){ h.coinT=rand(6,11); if(h.happiness>52){ const v=clamp(Math.round((h.growth-0.45)*6+(h.happiness-62)/30),1,9); dropCoin(h.x+rand(-0.04,0.04),h.y-0.10,v,h.level); showBubble(h,"🪙",700); } } }
 
-    h.bob+=dt*(running?16:(sleeping?1.5:5.5)); const bobY=sleeping?0:-Math.abs(Math.sin(h.bob))*(running?5:2.2);
+    const eating=h.action==="eat"; const hop=running||playing;
+    h.bob+=dt*(eating?22:(hop?15:(sleeping?1.5:5.5))); const bobY=sleeping?0:-Math.abs(Math.sin(h.bob))*(hop?5:2.2);
+    const chewY=eating?1-0.07*Math.abs(Math.sin(h.bob)):1;
     h.el.style.transform=`translate(${h.x*W}px,${h.y*H}px)`; h.el.style.zIndex=60+Math.round(h.y*100); h.el.classList.toggle("sleeping",sleeping);
-    h.shadowEl.style.transform=`translate(-50%,-50%) scaleX(${0.7+h.growth*0.5})`; h.anchorEl.style.transform=`translate(-50%,-100%) translateY(${bobY}px)`; h.bodyEl.style.transform=`scale(${h.growth})`; h.spriteEl.style.transform=`scaleX(${h.facing})`;
+    h.shadowEl.style.transform=`translate(-50%,-50%) scaleX(${0.7+h.growth*0.5})`; h.anchorEl.style.transform=`translate(-50%,-100%) translateY(${bobY}px)`; h.bodyEl.style.transform=`scale(${h.growth})`; h.spriteEl.style.transform=`scaleX(${h.facing}) scaleY(${chewY})`;
   }
 
   for(const lz of game.lizards) updateLizard(lz,dt,W,H);
-  for(const it of game.items){ if(it.viz) it.viz.classList.toggle("spin",ridden.has(it)); }
+  for(const it of game.items){ if(it.viz) it.viz.classList.toggle("spin",ridden.has(it)); it.el.classList.toggle("playing",played.has(it)); }
   for(let i=game.drops.length-1;i>=0;i--){ const d=game.drops[i]; d.life-=dt; if(d.life<=0){ d.el.style.transition="opacity .4s"; d.el.style.opacity=0; setTimeout(()=>removeDrop(d),400); d.life=99; } }
   requestAnimationFrame(loop);
 }
@@ -569,6 +713,7 @@ function updateHUD(){ coinCountEl.textContent=Math.floor(game.coins); diaCountEl
   document.querySelectorAll(".shop-btn.feed").forEach(b=>b.classList.toggle("cant",game.coins<FOODS[b.dataset.food].cost));
   document.getElementById("adoptBtn").classList.toggle("cant",game.coins<adoptCost());
   marryBtn.classList.toggle("cant",!liveHams().some(h=>h.growth>=1.0&&!h._leaving&&!h._hold));
+  studyBtn.classList.toggle("cant",!liveHams().some(h=>!h._leaving&&!h._hold));
   document.querySelectorAll(".shop-btn.decor").forEach(b=>{ const def=DECOR[+b.dataset.idx]; b.classList.toggle("cant",game.coins<def.cost); });
   document.querySelectorAll(".shop-btn.dia").forEach(b=>b.classList.toggle("cant",game.diamonds<+b.dataset.dia));
   const lb=document.getElementById("buyLizardBtn"); if(lb) lb.classList.toggle("cant", game.coins<LIZARD_COST||game.lizards.length>=LIZARD_MAX);
@@ -579,8 +724,20 @@ function updateExpand(){ const set=(id,done,en)=>{ const el=document.getElementB
   set("bExp3", game.floorsBuilt>=3, game.floorsBuilt===2&&game.coins>=140); set("bLad1", game.ladders[1], game.floorsBuilt>=3&&game.ladders[0]&&game.coins>=55); }
 function updateThemeBtns(){ document.querySelectorAll(".shop-btn.theme").forEach(b=>{ const key=b.dataset.key; const t=THEMES.find(x=>x.key===key); const unlocked=game.themesUnlocked.has(key);
   b.classList.toggle("sel",game.theme===key); const pr=b.querySelector(".price"); if(unlocked){ pr.innerHTML= game.theme===key?"사용중":"적용"; pr.style.color="#7a8a6a"; b.classList.remove("cant"); } else { pr.innerHTML=`<span class="dia-ico"></span>${t.dia}`; pr.style.color="#3aa6cf"; b.classList.toggle("cant",game.diamonds<t.dia); } }); }
-let toastTimer=null; function toast(m){ toastEl.innerHTML=m; toastEl.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove("show"),2100); }
-let hintTimer=null; const defaultHint=hintEl.innerHTML; function flashHint(m){ hintEl.innerHTML=m; clearTimeout(hintTimer); hintTimer=setTimeout(()=>{hintEl.innerHTML=defaultHint;},3300); }
+const noticeEl=document.getElementById("notice"); let noticeTimer=null;
+function showNotice(m){ if(!noticeEl)return; noticeEl.innerHTML=m; noticeEl.classList.add("show"); clearTimeout(noticeTimer); noticeTimer=setTimeout(()=>noticeEl.classList.remove("show"),2600); }
+function toast(m){ showNotice(m); }
+function flashHint(m){ showNotice(m); }
+const dlgBg=document.getElementById("dlgBg"), dlgMsg=document.getElementById("dlgMsg"), dlgInput=document.getElementById("dlgInput"), dlgYes=document.getElementById("dlgYes"), dlgNo=document.getElementById("dlgNo");
+let dlgCb=null, dlgMode="confirm";
+function closeDlg(){ dlgBg.classList.remove("show"); dlgCb=null; }
+function uiConfirm(msg,onYes){ dlgMode="confirm"; dlgMsg.innerHTML=msg; dlgInput.style.display="none"; dlgYes.textContent="예"; dlgNo.textContent="아니오"; dlgCb=onYes; dlgBg.classList.add("show"); }
+function uiPrompt(msg,def,onOk){ dlgMode="prompt"; dlgMsg.innerHTML=msg; dlgInput.style.display="block"; dlgInput.value=def||""; dlgYes.textContent="확인"; dlgNo.textContent="취소"; dlgCb=onOk; dlgBg.classList.add("show"); setTimeout(()=>{ try{ dlgInput.focus(); dlgInput.select(); }catch(_){ } },60); }
+function dlgDoYes(){ const cb=dlgCb, mode=dlgMode, val=dlgInput.value; closeDlg(); if(cb){ if(mode==="prompt") cb(val); else cb(); } }
+dlgYes.addEventListener("pointerdown",e=>{ e.stopPropagation(); Sound.resume(); dlgDoYes(); });
+dlgNo.addEventListener("pointerdown",e=>{ e.stopPropagation(); closeDlg(); });
+dlgBg.addEventListener("pointerdown",e=>{ if(e.target===dlgBg) closeDlg(); });
+dlgInput.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); dlgDoYes(); } });
 
 /* ================= Build shop rows ================= */
 (function buildShops(){
@@ -596,17 +753,33 @@ let hintTimer=null; const defaultHint=hintEl.innerHTML; function flashHint(m){ h
 
 /* ================= Inputs ================= */
 document.querySelectorAll(".shop-btn.feed").forEach(b=>b.addEventListener("pointerdown",()=>{Sound.resume(); dropFood(b.dataset.food);}));
-document.getElementById("adoptBtn").addEventListener("pointerdown",()=>{ Sound.resume(); const cost=adoptCost(); if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 입양에는 ${cost}코인이 필요해요.`); return; } game.coins-=cost; const h=createHamster(); Sound.coin(); spawnParticles(h.x,h.y-0.10,"✨",6); showBubble(h,"👶"); toast(`${h.pal.name} 색 아기 햄스터 <b>${h.name}</b> ${h.sex} 입양! 🐣`); updateHUD(); });
-marryBtn.addEventListener("pointerdown",()=>{ Sound.resume(); if(game.wedding){ flashHint("이미 결혼식이 진행 중이에요 💒"); return; } setMarryMode(!marryMode); });
+document.getElementById("adoptBtn").addEventListener("pointerdown",()=>{ Sound.resume(); const cost=adoptCost(); if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 입양에는 ${cost}코인이 필요해요.`); return; } uiConfirm(`아기 햄스터를 입양할까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.stats.adopted++; const h=createHamster(); Sound.coin(); spawnParticles(h.x,h.y-0.10,"✨",6); showBubble(h,"👶"); toast(`${h.pal.name} 색 아기 햄스터 <b>${h.name}</b> ${h.sex} 입양! 🐣`); updateHUD(); }); });
+marryBtn.addEventListener("pointerdown",()=>{ Sound.resume(); if(game.wedding){ flashHint("이미 결혼식이 진행 중이에요 💒"); return; } setMode("marry"); });
+studyBtn.addEventListener("pointerdown",()=>{ Sound.resume(); setMode("study"); });
 refillBtn.addEventListener("pointerdown",()=>{ Sound.resume(); if(game.water>=100){ flashHint("물통이 이미 가득 찼어요 💧"); return; } game.water=100; updateWater(); Sound.drink(); spawnParticles(0.9,0.16,"💧",5); flashHint("물을 가득 채웠어요! 💧"); });
 document.getElementById("bExp2").addEventListener("pointerdown",()=>{Sound.resume(); buyFloor(2);});
 document.getElementById("bLad0").addEventListener("pointerdown",()=>{Sound.resume(); buyLadder(0);});
 document.getElementById("bExp3").addEventListener("pointerdown",()=>{Sound.resume(); buyFloor(3);});
 document.getElementById("bLad1").addEventListener("pointerdown",()=>{Sound.resume(); buyLadder(1);});
+function renderTitle(){ const el=document.getElementById("houseName"); if(el) el.textContent=game.houseName; }
+const renameBtn=document.getElementById("renameBtn");
+renameBtn.addEventListener("pointerdown",e=>{ e.stopPropagation(); Sound.resume(); const COST=15; uiConfirm(`집 이름을 바꿀까요?  (코인 ${COST}개)`, ()=>{ if(game.coins<COST){ Sound.deny(); flashHint(`이름 변경은 코인 <b>${COST}</b>개가 필요해요!`); return; } uiPrompt("새 집 이름을 입력하세요", game.houseName, (v)=>{ v=(v||"").trim().slice(0,12); if(!v){ Sound.deny(); flashHint("이름이 비어있어요!"); return; } game.coins-=COST; game.houseName=v; renderTitle(); Sound.chime(); updateHUD(); toast(`🏷️ 집 이름이 "${v}"(으)로 바뀌었어요!`); saveGame(); }); }); });
 const musicBtn=document.getElementById("musicBtn");
 musicBtn.addEventListener("pointerdown",()=>{ if(Sound.isOn()){ Sound.stop(); musicBtn.classList.remove("on"); musicBtn.textContent="🎵"; } else { Sound.start(); musicBtn.classList.add("on"); musicBtn.textContent="🎶"; } });
-document.getElementById("resetBtn").addEventListener("pointerdown",()=>{ if(confirm("정말 처음부터 다시 시작할까요? 저장된 진행이 모두 사라져요.")){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} location.reload(); } });
-habitat.addEventListener("pointerdown",()=>{ Sound.resume(); if(marryMode) setMarryMode(false); });
+document.getElementById("resetBtn").addEventListener("pointerdown",()=>{ Sound.resume(); uiConfirm("정말 처음부터 다시 시작할까요?<br><span style='font-size:13px;color:#c0392b'>저장된 진행이 모두 사라져요</span>", ()=>{ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} location.reload(); }); });
+/* ===== Tabs / Quests / Book ===== */
+let activeTab="care";
+function setTab(name){ activeTab=name; const tc=document.querySelector(".tab-content"); if(tc)tc.scrollTop=0; document.querySelectorAll(".tabsec").forEach(sec=>sec.classList.toggle("active",sec.dataset.tab===name)); document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name)); if(name==="quest")renderQuests(); if(name==="book")renderBook(); }
+document.querySelectorAll("#tabbar button").forEach(b=>b.addEventListener("pointerdown",()=>{ Sound.pop(); setTab(b.dataset.tab); }));
+function questDone(q){ return q.prog()>=q.goal; }
+function renderQuests(){ const list=document.getElementById("questList"); list.innerHTML=QUESTS.map(q=>{ const p=Math.min(q.prog(),q.goal),done=p>=q.goal,claimed=!!game.quests.claimed[q.id],pct=Math.round(p/q.goal*100); let r=""; if(q.reward.coin)r+=`🪙${q.reward.coin} `; if(q.reward.dia)r+=`💎${q.reward.dia}`; let btn=claimed?`<button class="qbtn claimed" disabled>완료 ✓</button>`:(done?`<button class="qbtn ready" data-q="${q.id}">받기 🎁</button>`:`<button class="qbtn wait" disabled>진행중</button>`); return `<div class="quest"><div class="qi">${q.ic}</div><div class="qmid"><div class="qname">${q.label}</div><div class="qbar"><i style="width:${pct}%"></i></div><div class="qprog">${p}/${q.goal} · 보상 ${r}</div></div>${btn}</div>`; }).join(""); }
+function claimQuest(id){ const q=QUESTS.find(x=>x.id===id); if(!q||game.quests.claimed[id]||!questDone(q))return; game.quests.claimed[id]=true; const r=q.reward; if(r.coin)game.coins+=r.coin; if(r.dia)game.diamonds+=r.dia; Sound.fanfare(); spawnParticles(0.5,0.5,"🎉",7); let m="🎁 보상 획득! "; if(r.coin)m+=`코인+${r.coin} `; if(r.dia)m+=`💎+${r.dia}`; toast(m); updateHUD(); renderQuests(); saveGame(); }
+document.getElementById("questList").addEventListener("pointerdown",e=>{ const btn=e.target.closest("button[data-q]"); if(btn){ e.stopPropagation(); claimQuest(btn.dataset.q); } });
+function miniFace(palName){ const p=PALETTES.find(x=>x.name===palName)||PALETTES[0]; return `<div class="mface">${hamsterSVG(p)}</div>`; }
+function renderBook(){ const sub=document.getElementById("bookSub"), list=document.getElementById("bookList"); if(!game.diary.length){ sub.textContent=""; list.innerHTML=`<div class="book-empty">아직 결혼한 가족이 없어요.<br>어른 햄스터를 💌결혼시키면<br>여기 가족 책에 사진과 함께 기록돼요!</div>`; return; }
+  sub.innerHTML=`💍 결혼 <b>${game.diary.length}</b>쌍 · 👶 새 가족 <b>${game.diary.length}</b>`;
+  list.innerHTML=game.diary.slice().reverse().map((e,i)=>{ const num=game.diary.length-i; return `<div class="book-item"><div class="book-no">#${num}</div><div class="fam"><div class="fam-mem">${miniFace(e.aPal)}<span>${e.a}${e.aSex}</span></div><span class="fam-x">💕</span><div class="fam-mem">${miniFace(e.bPal)}<span>${e.b}${e.bSex}</span></div><span class="fam-x">→</span><div class="fam-mem baby">${miniFace(e.babyPal)}<span>👶${e.baby}${e.babySex||""}</span></div></div></div>`; }).join(""); }
+habitat.addEventListener("pointerdown",()=>{ Sound.resume(); if(selectMode) setMode(null); });
 
 /* ================= Save / Load ================= */
 const SAVE_KEY="hamster_garden_v1";
@@ -614,13 +787,13 @@ function saveGame(){ try{
   const data={ coins:game.coins, diamonds:game.diamonds, water:game.water, floorsBuilt:game.floorsBuilt, ladders:game.ladders.slice(),
     theme:game.theme, themesUnlocked:[...game.themesUnlocked], born:game.born, frog:!!game.frog, lizards:game.lizards.length,
     hamsters:game.hamsters.filter(h=>!h._temp&&!h._leaving&&!h._hold).map(h=>({name:h.name,pal:h.pal.name,sex:h.sex,level:h.level,x:h.x,growth:h.growth,hunger:h.hunger,thirst:h.thirst,happiness:h.happiness})),
-    items:game.items.map(it=>({type:it.type,skin:it.skin,emo:it.emo,level:it.level,x:it.x,y:it.y})) };
+    items:game.items.map(it=>({type:it.type,skin:it.skin,emo:it.emo,level:it.level,x:it.x,y:it.y})), diary:game.diary, abroad:game.abroad, quests:game.quests.claimed, stats:game.stats, houseName:game.houseName };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
 }catch(e){} }
 function loadGame(){ let data; try{ const s=localStorage.getItem(SAVE_KEY); if(!s) return false; data=JSON.parse(s); }catch(e){ return false; } if(!data) return false;
   game.coins=(data.coins!=null)?data.coins:60; game.diamonds=data.diamonds||0; game.water=(data.water!=null)?data.water:100;
   game.floorsBuilt=data.floorsBuilt||1; game.ladders=(Array.isArray(data.ladders)&&data.ladders.length===2)?data.ladders.slice():[false,false];
-  game.theme=data.theme||"default"; game.themesUnlocked=new Set((Array.isArray(data.themesUnlocked)&&data.themesUnlocked.length)?data.themesUnlocked:["default","sunset","forest","night"]); game.born=data.born||0;
+  game.theme=data.theme||"default"; game.themesUnlocked=new Set((Array.isArray(data.themesUnlocked)&&data.themesUnlocked.length)?data.themesUnlocked:["default","sunset","forest","night"]); game.born=data.born||0; game.diary=Array.isArray(data.diary)?data.diary:[]; game.abroad=Array.isArray(data.abroad)?data.abroad:[]; game.quests.claimed=(data.quests&&typeof data.quests==="object")?data.quests:{}; game.stats=Object.assign({adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0},data.stats||{}); if(typeof data.houseName==="string"&&data.houseName.trim()) game.houseName=data.houseName.slice(0,12);
   const t=THEMES.find(x=>x.key===game.theme)||THEMES[0]; habitat.style.background=t.bg;
   (data.hamsters||[]).forEach(hh=>{ const pal=PALETTES.find(p=>p.name===hh.pal)||pick(PALETTES); const h=createHamster({palette:pal,name:hh.name,sex:hh.sex,level:hh.level||0,x:hh.x,growth:hh.growth}); if(hh.hunger!=null)h.hunger=hh.hunger; if(hh.thirst!=null)h.thirst=hh.thirst; if(hh.happiness!=null)h.happiness=hh.happiness; });
   (data.items||[]).forEach(ii=>{ const it=placeItem(ii.type,ii.skin,ii.emo); if(it){ it.level=ii.level||0; it.x=ii.x; it.y=ii.y; renderItem(it); } });
@@ -631,10 +804,11 @@ function loadGame(){ let data; try{ const s=localStorage.getItem(SAVE_KEY); if(!
 /* ================= Start ================= */
 buildStructure();
 const loaded=loadGame();
-layout(); updateWater();
-if(!loaded){ createHamster(); placeItem("wheel"); const w0=itemsOf("wheel")[0]; if(w0){ w0.x=0.18; w0.y=floorY(0); w0.level=0; renderItem(w0); } }
+layout(); updateWater(); renderTitle();
+if(!loaded){ createHamster(); placeItem("wheel"); const w0=itemsOf("wheel")[0]; if(w0){ w0.x=0.18; w0.y=floorY(0); w0.level=0; renderItem(w0); } const ig=placeItem("igloo",null,"🛖"); if(ig){ ig.x=0.40; ig.y=floorY(0); ig.level=0; renderItem(ig); } }
 updateHUD();
 try{ setInterval(saveGame,4000); window.addEventListener("pagehide",saveGame); window.addEventListener("beforeunload",saveGame); document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(); }); }catch(e){}
+checkReturns(); setInterval(checkReturns,5000);
 requestAnimationFrame(t=>{ lastT=t; loop(t); });
 </script>
 </body>
