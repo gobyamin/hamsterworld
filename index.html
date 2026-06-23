@@ -206,6 +206,23 @@
   .dlg-btn:active{transform:translateY(2px);}
   .dlg-btn.no{background:#efe6d4; color:#9a7a52;}
   .dlg-btn.yes{background:#ffce4a; color:#7a4b00;}
+  .start-screen{position:fixed; inset:0; z-index:300; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(900px 600px at 50% 18%, #fff3da, transparent 60%), linear-gradient(170deg,#ffe1b8,#f6c98f 55%,#e9b277); transition:opacity .42s;}
+  .start-screen.hide{opacity:0; pointer-events:none;}
+  .start-card{text-align:center;}
+  .start-emoji{font-size:86px; line-height:1; animation:startbounce 1.8s ease-in-out infinite; filter:drop-shadow(0 8px 8px #0002);}
+  @keyframes startbounce{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-14px) rotate(6deg);}}
+  .start-title{font-family:'Jua',sans-serif; font-size:clamp(30px,9vw,42px); color:#7a4b22; text-shadow:0 3px 0 #fff7; margin-top:8px;}
+  .start-sub{font-family:'Gaegu',sans-serif; font-size:16px; color:#9a7350; margin:8px 0 28px;}
+  .start-btn{font-family:'Jua',sans-serif; font-size:23px; color:#fff; background:linear-gradient(180deg,#ffb24a,#ff974a); border:none; border-radius:999px; padding:14px 50px; cursor:pointer; box-shadow:0 8px 0 #d8772b, 0 14px 22px #0003; animation:startpulse 1.6s ease-in-out infinite;}
+  .start-btn:active{transform:translateY(5px); box-shadow:0 3px 0 #d8772b, 0 6px 12px #0003; animation:none;}
+  @keyframes startpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+  .platform.deco{background:repeating-linear-gradient(90deg,#ecc79a 0 9px,#dcae73 9px 18px); box-shadow:0 5px 0 #a9743f, 0 0 0 2px #ffe9c9 inset, 0 8px 10px #00000026;}
+  .platform.deco::before{background:#ffd9a0aa;}
+  .ramp.deco{box-shadow:0 0 0 2px #ffd9a0 inset, 0 3px 6px #0003; background:repeating-linear-gradient(90deg,#a9743f 0 3px,transparent 3px 13px), linear-gradient(180deg,#ffe0b0,#e0a86a);}
+  .book-side{display:flex; flex-direction:column; align-items:center; min-width:48px; gap:3px;}
+  .book-gen{font-family:'Jua',sans-serif; font-size:12px; background:#ffe8c2; color:#a9712a; border-radius:8px; padding:1px 7px; white-space:nowrap;}
+  .book-fam{font-family:'Jua',sans-serif; font-size:9.5px; color:#a07a52; text-align:center; line-height:1.1; max-width:54px;}
+  .item-tree .emoji{font-size:46px;} .item-painting .emoji{font-size:36px;} .item-clock .emoji{font-size:36px;} .item-pumpkin .emoji{font-size:34px;}
   @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;}}
 </style>
 </head>
@@ -313,6 +330,15 @@
     <div class="dlg-btns"><button class="dlg-btn no" id="dlgNo">아니오</button><button class="dlg-btn yes" id="dlgYes">예</button></div>
   </div></div>
 
+  <div class="start-screen" id="startScreen">
+    <div class="start-card">
+      <div class="start-emoji">🐹</div>
+      <div class="start-title" id="startTitle">햄스터 동산</div>
+      <div class="start-sub">아기 햄스터를 키우는 작고 귀여운 동산 🌿</div>
+      <button class="start-btn" id="startBtn">시작하기 ▶</button>
+    </div>
+  </div>
+
 <script>
 "use strict";
 
@@ -332,12 +358,13 @@ const Sound=(()=>{
   function sparkle(){ resume(); const t=ctx.currentTime; tone(1200,t,0.08,"sine",0.18); tone(1600,t+0.07,0.1,"sine",0.16); tone(2000,t+0.15,0.12,"sine",0.14); }
   function fanfare(){ resume(); const t=ctx.currentTime; const ns=[523.25,659.25,783.99,1046.5]; ns.forEach((f,i)=>tone(f,t+i*0.12,0.3,"triangle",0.26)); tone(1318.5,t+0.5,0.4,"sine",0.2); }
   function deny(){ resume(); const t=ctx.currentTime; tone(300,t,0.1,"sawtooth",0.12); tone(220,t+0.08,0.12,"sawtooth",0.12); }
+  function whoosh(){ resume(); const t=ctx.currentTime; const o=ctx.createOscillator(),g=ctx.createGain(); o.type="sawtooth"; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(950,t+0.4); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.05); g.gain.exponentialRampToValueAtTime(0.0001,t+0.5); o.connect(g); g.connect(sfx); o.start(t); o.stop(t+0.55); }
   const N={C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392,A4:440,C5:523.25,C3:130.81,F3:174.61,G3:196,A3:220};
   const melody=[N.E4,N.G4,N.A4,N.C5,N.A4,N.G4,N.E4,N.D4,N.E4,N.G4,N.C5,N.A4,N.G4,N.E4,N.G4,0]; const bass=[N.C3,N.G3,N.A3,N.F3]; const step=0.165; let idx=0,next=0;
   function sched(){ if(!ctx)return; while(next<ctx.currentTime+0.15){ const m=melody[idx%16]; if(m) tone(m,next,step*1.6,"triangle",0.22,music); if(idx%2===1&&m) tone(m*2,next,0.08,"sine",0.05,music); if(idx%4===0){ const b=bass[Math.floor(idx/4)%4]; tone(b,next,step*3,"sine",0.16,music); tone(b*2,next,step*2.4,"triangle",0.05,music); } next+=step; idx++; } }
   function start(){ resume(); if(playing)return; playing=true; idx=0; next=ctx.currentTime+0.05; music.gain.cancelScheduledValues(ctx.currentTime); music.gain.setValueAtTime(0.0001,ctx.currentTime); music.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.6); mTimer=setInterval(sched,25); }
   function stop(){ if(!playing)return; playing=false; music.gain.cancelScheduledValues(ctx.currentTime); music.gain.linearRampToValueAtTime(0,ctx.currentTime+0.3); clearInterval(mTimer); mTimer=null; }
-  return {resume,squeak,nibble,drink,coin,pop,place,chime,sparkle,fanfare,deny,start,stop,isOn:()=>playing};
+  return {resume,squeak,nibble,drink,coin,pop,place,chime,sparkle,fanfare,whoosh,deny,start,stop,isOn:()=>playing};
 })();
 
 /* ================= Data ================= */
@@ -381,6 +408,14 @@ const DECOR=[
   {type:"bear",label:"곰인형",cost:12,ic:"🧸",emo:"🧸"},
   {type:"balloon",label:"풍선",cost:9,ic:"🎈",emo:"🎈"},
   {type:"cactus",label:"선인장",cost:7,ic:"🌵",emo:"🌵"},
+  {type:"tree",label:"나무",cost:11,ic:"🌳",emo:"🌳"},
+  {type:"sunflower",label:"해바라기",cost:7,ic:"🌻",emo:"🌻"},
+  {type:"rock",label:"바위",cost:5,ic:"🪨",emo:"🪨"},
+  {type:"books",label:"책더미",cost:6,ic:"📚",emo:"📚"},
+  {type:"clock",label:"괘종시계",cost:9,ic:"🕰️",emo:"🕰️"},
+  {type:"painting",label:"그림",cost:10,ic:"🖼️",emo:"🖼️"},
+  {type:"pumpkin",label:"호박",cost:7,ic:"🎃",emo:"🎃"},
+  {type:"gift",label:"선물상자",cost:9,ic:"🎁",emo:"🎁"},
 ];
 const DIA_ITEMS=[
   {type:"wheel",skin:"rainbow",label:"무지개휠",ic:"🌈",emo:null,dia:2},
@@ -400,6 +435,13 @@ const THEMES=[
   {key:"galaxy",label:"우주",ic:"🌌",dia:2,bg:"linear-gradient(180deg,#1f1442 0%,#3a2070 50%,#5a3a82 68%,#bda0de 82%,#9a7fc0 100%)"},
 ];
 const LIZARD_COST=120, LIZARD_MAX=3, FROG_COST=100;
+QUESTS.push(
+  {id:"decorAll",ic:"🏆",label:"꾸미기 아이템 전부 사보기",goal:DECOR.length,prog:()=>Object.keys(game.stats.decorSet||{}).length,reward:{dia:1,coin:50}},
+  {id:"diaAll",ic:"🏆",label:"상점(다이아) 아이템 전부 사보기",goal:DIA_ITEMS.length,prog:()=>Object.keys(game.stats.diaSet||{}).length,reward:{dia:2}},
+  {id:"expandAll",ic:"🏰",label:"집 완전 확장 (3층+사다리+고급화 전부)",goal:1,prog:()=>(game.floorsBuilt>=3&&game.ladders[0]&&game.ladders[1]&&game.floorDeco[0]&&game.floorDeco[1]&&game.ladderDeco[0]&&game.ladderDeco[1])?1:0,reward:{dia:2,coin:80}},
+  {id:"gen3",ic:"👴",label:"3대(代) 가족 이루기",goal:1,prog:()=>game.diary.some(e=>(e.babyGen||0)>=3)?1:0,reward:{dia:2,coin:60}},
+  {id:"rich",ic:"💰",label:"코인 300개 모으기",goal:300,prog:()=>Math.floor(game.coins),reward:{dia:1}}
+);
 
 /* ================= Floors / ladders ================= */
 const FLOORS=[ {y:0.90, x:[0.06,0.94]}, {y:0.62, x:[0.45,0.92]}, {y:0.34, x:[0.08,0.55]} ];
@@ -408,7 +450,7 @@ const WATER={x:0.90};
 const floorY=l=>FLOORS[l].y, floorX=l=>FLOORS[l].x;
 
 /* ================= State ================= */
-const game={houseName:"햄스터 동산",coins:60,diamonds:0,water:100,floorsBuilt:1,ladders:[false,false],hamsters:[],lizards:[],frog:null,foods:[],drops:[],items:[],born:0,wedding:null,diary:[],abroad:[],quests:{claimed:{}},stats:{adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0},theme:"default",themesUnlocked:new Set(["default","sunset","forest","night"])};
+const game={houseName:"햄스터 동산",coins:60,diamonds:0,water:100,floorsBuilt:1,ladders:[false,false],floorDeco:[false,false],ladderDeco:[false,false],descendants:[],lineageSeq:0,hamsters:[],lizards:[],frog:null,foods:[],drops:[],items:[],born:0,wedding:null,diary:[],abroad:[],quests:{claimed:{}},stats:{adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0,decorSet:{},diaSet:{}},theme:"default",themesUnlocked:new Set(["default","sunset","forest","night"])};
 const habitat=document.getElementById("habitat");
 const coinCountEl=document.getElementById("coinCount"), diaCountEl=document.getElementById("diaCount"), hamCountEl=document.getElementById("hamCount");
 const adoptPriceEl=document.getElementById("adoptPrice"), hintEl=document.getElementById("hint"), toastEl=document.getElementById("toast");
@@ -417,6 +459,7 @@ const wbWater=document.getElementById("wbWater"), waterPctEl=document.getElement
 const rand=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)], clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const adoptCost=()=>25+game.hamsters.filter(h=>!h._temp).length*18, itemsOf=t=>game.items.filter(i=>i.type===t);
 const liveHams=()=>game.hamsters.filter(h=>!h._temp);
+const isTeen=h=>!h._temp&&!h._hold&&!h._leaving&&h.growth>=0.72&&h.growth<1.0;
 
 function floorReachable(i){ if(i===0)return true; if(i>=game.floorsBuilt)return false; for(let k=0;k<i;k++) if(!game.ladders[k])return false; return true; }
 function reachableFloors(){ const a=[]; for(let i=0;i<FLOORS.length;i++) if(floorReachable(i)) a.push(i); return a; }
@@ -462,7 +505,7 @@ function createHamster(opts){ opts=opts||{}; const p=opts.palette||pick(PALETTES
   const h={ id:++game.born, name:opts.name||uniqueName(), pal:p, sex:opts.sex||pick(["♂","♀"]), level:lvl,
     x:opts.x!==undefined?clamp(opts.x,fx[0]+0.04,fx[1]-0.04):rand(fx[0]+0.05,fx[1]-0.05), y:floorY(lvl),
     facing:1, growth:opts.growth||0.5, hunger:30, thirst:25, happiness:72, action:"idle", actT:rand(0.3,1.2),
-    bob:Math.random()*6.28, path:[], food:null, eatT:0, item:null, coinT:rand(4,8), chase:0, _leaving:false, _temp:!!opts.temp, _hold:null };
+    bob:Math.random()*6.28, path:[], food:null, eatT:0, item:null, coinT:rand(4,8), chase:0, gen:opts.gen||1, lineageId:(opts.lineageId!=null?opts.lineageId:null), family:opts.family||null, _leaving:false, _temp:!!opts.temp, _hold:null };
   const el=document.createElement("div"); el.className="hamster";
   el.innerHTML=`<div class="ham-shadow"></div><div class="ham-anchor"><div class="ham-body"><div class="ham-cap">🎓</div><div class="ham-bubble"></div><div class="ham-name"></div><div class="ham-sprite">${hamsterSVG(p)}</div></div></div>`;
   el.addEventListener("pointerdown",e=>{e.stopPropagation(); tapHamster(h);}); habitat.appendChild(el);
@@ -507,16 +550,16 @@ function showBubble(h,e,ms){ h.bubbleEl.textContent=e; h.bubbleEl.classList.add(
 function setCheeks(h,r){ h.cheeks.forEach(c=>c.setAttribute("r",r)); }
 function tapHamster(h){
   if(selectMode==="marry"){ if(h._temp||h._hold||h._leaving)return; if(h.growth>=1.0){ setMode(null); startWedding(h); } else { Sound.deny(); flashHint(`<b>${h.name}</b>는 아직 어른이 아니에요. 더 키워주세요!`); } return; }
-  if(selectMode==="study"){ if(h._temp||h._hold||h._leaving)return; setMode(null); sendAbroad(h); return; }
+  if(selectMode==="study"){ if(h._temp||h._hold||h._leaving)return; if(!isTeen(h)){ Sound.deny(); flashHint(`유학은 <b>청소년</b> 햄스터만 갈 수 있어요! (지금 ${stageName(h.growth)})`); setMode(null); return; } setMode(null); uiConfirm(`<b>${h.name}</b> 유학 보낼까요?<br><span style='font-size:13px;color:#3aa6cf'>유학비는 햄스터 재단이 전액 지원! (무료)<br>10분 뒤 졸업해서 <b>어른</b>이 되어 돌아와요 🎓</span>`, ()=>sendAbroad(h)); return; }
   if(h._leaving||h._hold)return; Sound.squeak(h.growth); h.happiness=clamp(h.happiness+6,0,100); showBubble(h,pick(["💕","🎵","✨","💛"]));
   spawnParticles(h.x,h.y-0.10,pick(["💕","💗","✨"]),5); const w=nearestItem(h,reachWheels()); if(w)goWheel(h,w); else startWander(h); }
 
 /* ================= Select modes + study abroad ================= */
 let selectMode=null;
 function setMode(m){ selectMode=(selectMode===m)?null:m; marryBtn.classList.toggle("on",selectMode==="marry"); studyBtn.classList.toggle("on",selectMode==="study");
-  liveHams().forEach(h=>{ const arm=selectMode&&!h._hold&&!h._leaving&&(selectMode==="study"||h.growth>=1.0); h.el.classList.toggle("armed",!!arm); });
+  liveHams().forEach(h=>{ const arm=selectMode&&!h._hold&&!h._leaving&&(selectMode==="study"?isTeen(h):h.growth>=1.0); h.el.classList.toggle("armed",!!arm); });
   if(selectMode==="marry") flashHint("결혼시킬 <b>어른</b> 햄스터를 누르세요 💌 (빈 곳=취소)");
-  else if(selectMode==="study") flashHint("유학 보낼 햄스터를 누르세요 ✈️ (빈 곳=취소)"); }
+  else if(selectMode==="study") flashHint("유학 보낼 <b>청소년</b> 햄스터를 누르세요 ✈️ (빈 곳=취소)"); }
 function makeFlyer(pal){ const el=document.createElement("div"); el.className="flyer"; el.innerHTML=`<span class="plane">✈️</span><span class="rider">${hamsterSVG(pal)}</span>`; habitat.appendChild(el); return el; }
 function sendAbroad(h){ if(h._temp||h._leaving||h._hold)return; const W=habitat.clientWidth,H=habitat.clientHeight; const pal=h.pal, data={name:h.name,palName:h.pal.name,sex:h.sex,level:0,growth:h.growth};
   Sound.whoosh(); wearCap(h); const sx=h.x*W, sy=(h.y-0.08)*H; const fl=makeFlyer(pal); fl.style.transform=`translate(${sx}px,${sy}px) translate(-50%,-50%)`; removeHamster(h);
@@ -524,10 +567,10 @@ function sendAbroad(h){ if(h._temp||h._leaving||h._hold)return; const W=habitat.
   game.abroad.push({data,returnAt:Date.now()+STUDY_MS}); game.stats.studied++; toast(`✈️ ${data.name} 유학 떠났어요! 10분 뒤 졸업해 돌아와요 🎓`); updateHUD(); if(activeTab==="quest")renderQuests(); saveGame(); }
 function returnHamster(data){ const W=habitat.clientWidth,H=habitat.clientHeight; const pal=PALETTES.find(p=>p.name===data.palName)||PALETTES[0]; const lx=rand(0.18,0.55), gy=floorY(0);
   Sound.whoosh(); const fl=makeFlyer(pal); fl.animate([{transform:`translate(${-W*0.2}px,${-H*0.25}px) translate(-50%,-50%) scale(.6)`,opacity:0},{transform:`translate(${lx*W}px,${(gy-0.05)*H}px) translate(-50%,-50%) scale(1)`,opacity:1}],{duration:1500,easing:"ease-out"}).onfinish=()=>{
-    fl.remove(); const h=createHamster({palette:pal,sex:data.sex,name:data.name,level:0,growth:data.growth,x:lx}); wearCap(h); showBubble(h,"🎓");
+    fl.remove(); const wasTeen=data.growth<1.0; const h=createHamster({palette:pal,sex:data.sex,name:data.name,level:0,growth:Math.max(data.growth,1.08),x:lx}); h.happiness=Math.max(h.happiness,95); wearCap(h); showBubble(h,"🎓"); if(wasTeen){ game.stats.grownAdult++; spawnParticles(lx,gy-0.12,"⬆️",4); }
     Sound.fanfare(); spawnParticles(lx,gy-0.12,"🎉",7); spawnParticles(lx,gy-0.08,"🎓",3);
     liveHams().forEach(o=>{ if(o!==h && Math.random()<0.9) showBubble(o,pick(["🎉","👏","💕","🥳"]),1400); });
-    let msg=`🎓 ${data.name} 유학에서 돌아왔어요! 다들 축하해줘요`; if(Math.random()<0.18){ game.diamonds+=1; msg+="  💎+1"; spawnParticles(lx,gy-0.16,"💎",3); } updateHUD(); toast(msg); if(activeTab==="quest")renderQuests(); saveGame();
+    let msg=`🎓 ${data.name} 졸업하고 어른이 되어 돌아왔어요! 다들 축하해줘요`; if(Math.random()<0.18){ game.diamonds+=1; msg+="  💎+1"; spawnParticles(lx,gy-0.16,"💎",3); } updateHUD(); toast(msg); if(activeTab==="quest")renderQuests(); saveGame();
   }; }
 function checkReturns(){ const now=Date.now(); for(let i=game.abroad.length-1;i>=0;i--){ if(now>=game.abroad[i].returnAt){ const a=game.abroad.splice(i,1)[0]; returnHamster(a.data); } } }
 function makeArch(){ const el=document.createElement("div"); el.className="arch";
@@ -554,8 +597,10 @@ function weddingCheer(){ const w=game.wedding; if(!w)return; Sound.fanfare(); sp
 function weddingFinale(){ const w=game.wedding; if(!w)return; clearInterval(w.cheer); Sound.fanfare(); spawnParticles(w.cx,w.gy-0.13,"💞",8);
   const babyPal=Math.random()<0.5?w.groom.pal:w.bride.pal, babySex=pick(["♂","♀"]), babyName=uniqueName();
   const baby=createHamster({palette:babyPal,sex:babySex,name:babyName,x:w.cx,level:0,temp:true}); baby._hold={x:w.cx,y:w.gy,level:0}; baby._faceX=w.cx+0.01; showBubble(baby,"👶"); spawnParticles(w.cx,w.gy-0.05,"💕",5); spawnParticles(w.cx,w.gy-0.16,"💎",3);
-  game.diary.push({a:w.groom.name,aSex:w.groom.sex,aPal:w.groom.pal.name,b:w.bride.name,bSex:w.bride.sex,bPal:w.bride.pal.name,baby:babyName,babySex:babySex,babyPal:babyPal.name,t:Date.now()});
-  game.diamonds+=1; updateHUD(); toast(`💍 ${w.groom.name} 가족이 아기와 함께 새 집으로 떠났어요! 💎+1`);
+  const pg=w.groom.gen||1; let lid=w.groom.lineageId, fam=w.groom.family; if(lid==null){ lid=++game.lineageSeq; fam=`${w.groom.name}·${w.bride.name}네`; } const babyGen=pg+1;
+  game.diary.push({a:w.groom.name,aSex:w.groom.sex,aPal:w.groom.pal.name,b:w.bride.name,bSex:w.bride.sex,bPal:w.bride.pal.name,baby:babyName,babySex:babySex,babyPal:babyPal.name,gen:pg,babyGen:babyGen,lineageId:lid,family:fam,t:Date.now()});
+  if(babyGen<=3){ game.descendants.push({name:babyName,palName:babyPal.name,sex:babySex,gen:babyGen,lineageId:lid,family:fam}); }
+  game.diamonds+=1; updateHUD(); toast(`💍 ${fam} ${pg}대 ${w.groom.name}이(가) 아기와 함께 떠났어요! 💎+1`);
   setTimeout(()=>{ [w.groom,w.bride,baby].forEach(c=>{ c.el.classList.add("leaving"); c.el.style.opacity=0; });
     setTimeout(()=>{ removeHamster(w.groom); removeHamster(w.bride); removeHamster(baby);
       w.guests.forEach(g=>{ g._hold=null; g._guest=false; g._faceX=undefined; g.el.classList.remove("armed"); g.action="idle"; g.actT=rand(0.3,1.2); });
@@ -591,12 +636,12 @@ function spokesHTML(){ let s=""; for(let i=0;i<8;i++) s+=`<span style="transform
 function makeItemEl(type,skin,emo){ const el=document.createElement("div"); el.className="item item-"+type+(skin?" skin-"+skin:"");
   if(type==="wheel"){ el.innerHTML=`<div class="wheelviz lift ${skin==='rainbow'?'rainbow':''}"><div class="stand"></div><div class="ring"></div><div class="hub"></div><div class="spokes">${spokesHTML()}</div></div>`; }
   else { const e = emo || EMOJI[type] || "❔"; el.innerHTML=`<div class="emoji lift">${e}</div>`; } return el; }
-function placeItem(type,skin,emo){ if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return null; }
+function placeItem(type,skin,emo){ if(game.items.length>=30){ flashHint("물건이 너무 많아요! 🧸"); return null; }
   const it={type,skin:skin||null,emo:emo||null,level:0,x:rand(0.15,0.55),y:floorY(0)}; const el=makeItemEl(type,skin,emo); habitat.appendChild(el); it.el=el; it.viz=el.querySelector(".wheelviz"); game.items.push(it); makeDraggable(it); renderItem(it); return it; }
 function buyDecor(def){ if(game.coins<def.cost){ Sound.deny(); flashHint(`코인이 부족해요! <b>${def.label}</b>은 ${def.cost}코인이에요.`); return; }
-  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (코인 ${def.cost}개)`, ()=>{ game.coins-=def.cost; game.stats.decorBought++; Sound.place(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`${def.label} 놓기 완료! 드래그해서 옮겨보세요 ✋`); } }); }
+  if(game.items.length>=30){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (코인 ${def.cost}개)`, ()=>{ game.coins-=def.cost; game.stats.decorBought++; game.stats.decorSet[def.label]=true; Sound.place(); if(activeTab==="quest")renderQuests(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`${def.label} 놓기 완료! 드래그해서 옮겨보세요 ✋`); } }); }
 function buyDiaItem(def){ if(game.diamonds<def.dia){ Sound.deny(); flashHint(`💎가 부족해요! <b>${def.label}</b>은 💎${def.dia}개예요.`); return; }
-  if(game.items.length>=18){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (💎 ${def.dia}개)`, ()=>{ game.diamonds-=def.dia; game.stats.decorBought++; Sound.sparkle(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`✨ ${def.label} 놓기 완료! 드래그해서 옮겨보세요`); } }); }
+  if(game.items.length>=30){ flashHint("물건이 너무 많아요! 🧸"); return; } uiConfirm(`${def.label} 살까요?  (💎 ${def.dia}개)`, ()=>{ game.diamonds-=def.dia; game.stats.decorBought++; game.stats.diaSet[def.label]=true; Sound.sparkle(); if(activeTab==="quest")renderQuests(); const it=placeItem(def.type,def.skin,def.emo); if(it){ updateHUD(); toast(`✨ ${def.label} 놓기 완료! 드래그해서 옮겨보세요`); } }); }
 function renderItem(it){ const W=habitat.clientWidth,H=habitat.clientHeight; if(it.type==="wheel"){ const s=Math.max(58,0.16*W); it.el.style.width=s+"px"; it.el.style.height=s+"px"; }
   it.el.style.left=(it.x*W)+"px"; it.el.style.top=(it.y*H)+"px"; if(!it._drag) it.el.style.zIndex=50+Math.round(it.y*100); }
 function makeDraggable(it){ const el=it.el; let dragging=false,moved=false;
@@ -633,10 +678,19 @@ function updateWater(){ const pct=Math.round(game.water); if(wbWater)wbWater.sty
 function frogSquirt(){ const fr=game.frog; if(!fr)return; fr.squirtT=1.2; fr.el.classList.add("squirt"); Sound.drink(); for(let i=0;i<6;i++) setTimeout(()=>spawnParticles(0.83+i*0.015,0.42,"💧",1), i*70); game.water=100; updateWater(); }
 
 /* ================= Floor / ladder build ================= */
-function buyFloor(target){ const idx=target-1; if(game.floorsBuilt>idx){ return; } if(idx!==game.floorsBuilt){ Sound.deny(); flashHint("아래층부터 지어야 해요!"); return; }
-  const cost=target===2?70:140; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! ${target}층은 ${cost}코인이에요.`); return; } uiConfirm(`${target}층 지을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.floorsBuilt=target; Sound.chime(); layout(); updateHUD(); toast(`🏗️ ${target}층이 생겼어요! 사다리도 놓아주세요 🪜`); }); }
-function buyLadder(l){ if(game.ladders[l]) return; if(game.floorsBuilt < l+2){ Sound.deny(); flashHint("먼저 위층을 지어야 사다리를 놓을 수 있어요!"); return; } if(l>0 && !game.ladders[l-1]){ Sound.deny(); flashHint("아래 사다리부터 놓아주세요!"); return; }
-  const cost=l===0?35:55; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 사다리는 ${cost}코인이에요.`); return; } uiConfirm(`${l+2}층 사다리 놓을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.ladders[l]=true; Sound.place(); layout(); updateHUD(); toast(`🪜 ${l+2}층 사다리 완성! 햄스터들이 올라가요`); }); }
+function buyFloor(target){ const idx=target-1;
+  if(game.floorsBuilt<=idx){ if(idx!==game.floorsBuilt){ Sound.deny(); flashHint("아래층부터 지어야 해요!"); return; }
+    const cost=target===2?70:140; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! ${target}층은 ${cost}코인이에요.`); return; }
+    uiConfirm(`${target}층 지을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.floorsBuilt=target; Sound.chime(); layout(); updateHUD(); toast(`🏗️ ${target}층이 생겼어요! 사다리도 놓아주세요 🪜`); if(activeTab==="quest")renderQuests(); }); return; }
+  const di=idx-1; if(game.floorDeco[di]) return;
+  const cost=target===2?50:90; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! ${target}층 고급화는 ${cost}코인이에요.`); return; }
+  uiConfirm(`${target}층을 고급 인테리어로 꾸밀까요? ✨  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.floorDeco[di]=true; Sound.sparkle(); layout(); updateHUD(); toast(`✨ ${target}층이 고급스러워졌어요!`); if(activeTab==="quest")renderQuests(); }); }
+function buyLadder(l){ if(!game.ladders[l]){ if(game.floorsBuilt < l+2){ Sound.deny(); flashHint("먼저 위층을 지어야 사다리를 놓을 수 있어요!"); return; } if(l>0 && !game.ladders[l-1]){ Sound.deny(); flashHint("아래 사다리부터 놓아주세요!"); return; }
+    const cost=l===0?35:55; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 사다리는 ${cost}코인이에요.`); return; }
+    uiConfirm(`${l+2}층 사다리 놓을까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.ladders[l]=true; Sound.place(); layout(); updateHUD(); toast(`🪜 ${l+2}층 사다리 완성! 햄스터들이 올라가요`); if(activeTab==="quest")renderQuests(); }); return; }
+  if(game.ladderDeco[l]) return;
+  const cost=l===0?25:40; if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 사다리 고급화는 ${cost}코인이에요.`); return; }
+  uiConfirm(`${l+2}층 사다리를 멋지게 꾸밀까요? ✨  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.ladderDeco[l]=true; Sound.sparkle(); layout(); updateHUD(); toast(`✨ ${l+2}층 사다리가 근사해졌어요!`); if(activeTab==="quest")renderQuests(); }); }
 
 /* ================= Theme ================= */
 function applyTheme(t){ habitat.style.background=t.bg; game.theme=t.key; updateThemeBtns(); }
@@ -701,10 +755,10 @@ function buildStructure(){ for(let f=1;f<FLOORS.length;f++){ const fl=FLOORS[f];
     const b=document.createElement("div"); b.className="post"; b.style.display="none"; habitat.appendChild(b); fl.post2El=b; }
   for(let l=0;l<LADDERS.length;l++){ const L=LADDERS[l]; const r=document.createElement("div"); r.className="ramp"; r.style.display="none"; habitat.appendChild(r); L.el=r; } }
 function layoutStructure(){ const W=habitat.clientWidth,H=habitat.clientHeight;
-  for(let f=1;f<FLOORS.length;f++){ const fl=FLOORS[f]; const built=f<game.floorsBuilt; fl.platEl.style.display=built?"block":"none"; fl.post1El.style.display=built?"block":"none"; fl.post2El.style.display=built?"block":"none";
+  for(let f=1;f<FLOORS.length;f++){ const fl=FLOORS[f]; const built=f<game.floorsBuilt; fl.platEl.style.display=built?"block":"none"; fl.post1El.style.display=built?"block":"none"; fl.post2El.style.display=built?"block":"none"; fl.platEl.classList.toggle("deco", built&&!!game.floorDeco[f-1]);
     if(built){ fl.platEl.style.left=(fl.x[0]*100)+"%"; fl.platEl.style.width=((fl.x[1]-fl.x[0])*100)+"%"; fl.platEl.style.top=(fl.y*100)+"%"; const lowerY=FLOORS[f-1].y, pa=fl.x[0]+0.04, pb=fl.x[1]-0.05;
       fl.post1El.style.left=(pa*100)+"%"; fl.post1El.style.top=(fl.y*100+1)+"%"; fl.post1El.style.height=((lowerY-fl.y)*100-1)+"%"; fl.post2El.style.left=(pb*100)+"%"; fl.post2El.style.top=(fl.y*100+1)+"%"; fl.post2El.style.height=((lowerY-fl.y)*100-1)+"%"; } }
-  for(let l=0;l<LADDERS.length;l++){ const L=LADDERS[l]; const on=game.ladders[l]; L.el.style.display=on?"block":"none"; if(on){ const x1=L.bottomX*W,y1=FLOORS[l].y*H,x2=L.topX*W,y2=FLOORS[l+1].y*H; const len=Math.hypot(x2-x1,y2-y1),ang=Math.atan2(y2-y1,x2-x1); L.el.style.left=x1+"px"; L.el.style.top=y1+"px"; L.el.style.width=len+"px"; L.el.style.transformOrigin="0 50%"; L.el.style.transform=`translateY(-50%) rotate(${ang}rad)`; } } }
+  for(let l=0;l<LADDERS.length;l++){ const L=LADDERS[l]; const on=game.ladders[l]; L.el.style.display=on?"block":"none"; L.el.classList.toggle("deco", on&&!!game.ladderDeco[l]); if(on){ const x1=L.bottomX*W,y1=FLOORS[l].y*H,x2=L.topX*W,y2=FLOORS[l+1].y*H; const len=Math.hypot(x2-x1,y2-y1),ang=Math.atan2(y2-y1,x2-x1); L.el.style.left=x1+"px"; L.el.style.top=y1+"px"; L.el.style.width=len+"px"; L.el.style.transformOrigin="0 50%"; L.el.style.transform=`translateY(-50%) rotate(${ang}rad)`; } } }
 function layout(){ layoutStructure(); game.items.forEach(renderItem); game.foods.forEach(positionFood); game.drops.forEach(positionDrop); renderFrog(); if(game.wedding) positionArch(game.wedding.arch,game.wedding.cx,game.wedding.gy); }
 window.addEventListener("resize",layout);
 
@@ -713,15 +767,18 @@ function updateHUD(){ coinCountEl.textContent=Math.floor(game.coins); diaCountEl
   document.querySelectorAll(".shop-btn.feed").forEach(b=>b.classList.toggle("cant",game.coins<FOODS[b.dataset.food].cost));
   document.getElementById("adoptBtn").classList.toggle("cant",game.coins<adoptCost());
   marryBtn.classList.toggle("cant",!liveHams().some(h=>h.growth>=1.0&&!h._leaving&&!h._hold));
-  studyBtn.classList.toggle("cant",!liveHams().some(h=>!h._leaving&&!h._hold));
+  studyBtn.classList.toggle("cant",!liveHams().some(h=>isTeen(h)));
   document.querySelectorAll(".shop-btn.decor").forEach(b=>{ const def=DECOR[+b.dataset.idx]; b.classList.toggle("cant",game.coins<def.cost); });
   document.querySelectorAll(".shop-btn.dia").forEach(b=>b.classList.toggle("cant",game.diamonds<+b.dataset.dia));
   const lb=document.getElementById("buyLizardBtn"); if(lb) lb.classList.toggle("cant", game.coins<LIZARD_COST||game.lizards.length>=LIZARD_MAX);
   const fb=document.getElementById("buyFrogBtn"); if(fb) fb.classList.toggle("cant", game.coins<FROG_COST||!!game.frog);
   updateExpand(); updateThemeBtns(); }
-function updateExpand(){ const set=(id,done,en)=>{ const el=document.getElementById(id); el.classList.toggle("done",done); el.classList.toggle("cant",!done&&!en); };
-  set("bExp2", game.floorsBuilt>=2, game.floorsBuilt===1&&game.coins>=70); set("bLad0", game.ladders[0], game.floorsBuilt>=2&&game.coins>=35);
-  set("bExp3", game.floorsBuilt>=3, game.floorsBuilt===2&&game.coins>=140); set("bLad1", game.ladders[1], game.floorsBuilt>=3&&game.ladders[0]&&game.coins>=55); }
+function updateExpand(){ function st(id,label,price,stage,cant){ const el=document.getElementById(id); if(!el)return; el.classList.toggle("done",stage==="done"); el.classList.toggle("cant",stage!=="done"&&!!cant); const lab=el.querySelector(".label"),pr=el.querySelector(".price"); if(lab)lab.textContent=label; if(pr)pr.innerHTML=price; }
+  const C=n=>`<span class="coin-ico"></span>${n}`;
+  if(game.floorsBuilt<2) st("bExp2","2층 짓기",C(70),"do",!(game.floorsBuilt===1&&game.coins>=70)); else if(!game.floorDeco[0]) st("bExp2","2층 고급화 ✨",C(50),"do",game.coins<50); else st("bExp2","2층 완성 ✓","Lv.2","done",false);
+  if(!game.ladders[0]) st("bLad0","2층 사다리",C(35),"do",!(game.floorsBuilt>=2&&game.coins>=35)); else if(!game.ladderDeco[0]) st("bLad0","사다리 고급화 ✨",C(25),"do",game.coins<25); else st("bLad0","사다리 완성 ✓","Lv.2","done",false);
+  if(game.floorsBuilt<3) st("bExp3","3층 짓기",C(140),"do",!(game.floorsBuilt===2&&game.coins>=140)); else if(!game.floorDeco[1]) st("bExp3","3층 고급화 ✨",C(90),"do",game.coins<90); else st("bExp3","3층 완성 ✓","Lv.2","done",false);
+  if(!game.ladders[1]) st("bLad1","3층 사다리",C(55),"do",!(game.floorsBuilt>=3&&game.ladders[0]&&game.coins>=55)); else if(!game.ladderDeco[1]) st("bLad1","사다리 고급화 ✨",C(40),"do",game.coins<40); else st("bLad1","사다리 완성 ✓","Lv.2","done",false); }
 function updateThemeBtns(){ document.querySelectorAll(".shop-btn.theme").forEach(b=>{ const key=b.dataset.key; const t=THEMES.find(x=>x.key===key); const unlocked=game.themesUnlocked.has(key);
   b.classList.toggle("sel",game.theme===key); const pr=b.querySelector(".price"); if(unlocked){ pr.innerHTML= game.theme===key?"사용중":"적용"; pr.style.color="#7a8a6a"; b.classList.remove("cant"); } else { pr.innerHTML=`<span class="dia-ico"></span>${t.dia}`; pr.style.color="#3aa6cf"; b.classList.toggle("cant",game.diamonds<t.dia); } }); }
 const noticeEl=document.getElementById("notice"); let noticeTimer=null;
@@ -753,7 +810,12 @@ dlgInput.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault()
 
 /* ================= Inputs ================= */
 document.querySelectorAll(".shop-btn.feed").forEach(b=>b.addEventListener("pointerdown",()=>{Sound.resume(); dropFood(b.dataset.food);}));
-document.getElementById("adoptBtn").addEventListener("pointerdown",()=>{ Sound.resume(); const cost=adoptCost(); if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 입양에는 ${cost}코인이 필요해요.`); return; } uiConfirm(`아기 햄스터를 입양할까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.stats.adopted++; const h=createHamster(); Sound.coin(); spawnParticles(h.x,h.y-0.10,"✨",6); showBubble(h,"👶"); toast(`${h.pal.name} 색 아기 햄스터 <b>${h.name}</b> ${h.sex} 입양! 🐣`); updateHUD(); }); });
+document.getElementById("adoptBtn").addEventListener("pointerdown",()=>{ Sound.resume(); const cost=adoptCost(); if(game.coins<cost){ Sound.deny(); flashHint(`코인이 부족해요! 입양에는 ${cost}코인이 필요해요.`); return; } uiConfirm(`아기 햄스터를 입양할까요?  (코인 ${cost}개)`, ()=>{ game.coins-=cost; game.stats.adopted++; let h, desc=null;
+      if(game.descendants.length && Math.random()<0.6){ desc=game.descendants.shift(); const dp=PALETTES.find(p=>p.name===desc.palName)||pick(PALETTES); h=createHamster({palette:dp,name:desc.name,sex:desc.sex,gen:desc.gen,lineageId:desc.lineageId,family:desc.family}); }
+      else { h=createHamster(); }
+      Sound.coin(); spawnParticles(h.x,h.y-0.10,"✨",6); showBubble(h,"👶");
+      if(desc){ toast(`💞 ${desc.family} <b>${h.gen}대</b> 아기 <b>${h.name}</b>가 우리집에 왔어요!`); } else { toast(`${h.pal.name} 색 아기 햄스터 <b>${h.name}</b> ${h.sex} 입양! 🐣`); }
+      updateHUD(); if(activeTab==="book")renderBook(); }); });
 marryBtn.addEventListener("pointerdown",()=>{ Sound.resume(); if(game.wedding){ flashHint("이미 결혼식이 진행 중이에요 💒"); return; } setMode("marry"); });
 studyBtn.addEventListener("pointerdown",()=>{ Sound.resume(); setMode("study"); });
 refillBtn.addEventListener("pointerdown",()=>{ Sound.resume(); if(game.water>=100){ flashHint("물통이 이미 가득 찼어요 💧"); return; } game.water=100; updateWater(); Sound.drink(); spawnParticles(0.9,0.16,"💧",5); flashHint("물을 가득 채웠어요! 💧"); });
@@ -766,7 +828,7 @@ const renameBtn=document.getElementById("renameBtn");
 renameBtn.addEventListener("pointerdown",e=>{ e.stopPropagation(); Sound.resume(); const COST=15; uiConfirm(`집 이름을 바꿀까요?  (코인 ${COST}개)`, ()=>{ if(game.coins<COST){ Sound.deny(); flashHint(`이름 변경은 코인 <b>${COST}</b>개가 필요해요!`); return; } uiPrompt("새 집 이름을 입력하세요", game.houseName, (v)=>{ v=(v||"").trim().slice(0,12); if(!v){ Sound.deny(); flashHint("이름이 비어있어요!"); return; } game.coins-=COST; game.houseName=v; renderTitle(); Sound.chime(); updateHUD(); toast(`🏷️ 집 이름이 "${v}"(으)로 바뀌었어요!`); saveGame(); }); }); });
 const musicBtn=document.getElementById("musicBtn");
 musicBtn.addEventListener("pointerdown",()=>{ if(Sound.isOn()){ Sound.stop(); musicBtn.classList.remove("on"); musicBtn.textContent="🎵"; } else { Sound.start(); musicBtn.classList.add("on"); musicBtn.textContent="🎶"; } });
-document.getElementById("resetBtn").addEventListener("pointerdown",()=>{ Sound.resume(); uiConfirm("정말 처음부터 다시 시작할까요?<br><span style='font-size:13px;color:#c0392b'>저장된 진행이 모두 사라져요</span>", ()=>{ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} location.reload(); }); });
+document.getElementById("resetBtn").addEventListener("pointerdown",()=>{ Sound.resume(); uiConfirm("정말 처음부터 다시 시작할까요?<br><span style='font-size:13px;color:#c0392b'>저장된 진행이 모두 사라져요</span>", ()=>{ resetting=true; clearInterval(window.__autosave); try{ localStorage.removeItem(SAVE_KEY); }catch(e){} location.reload(); }); });
 /* ===== Tabs / Quests / Book ===== */
 let activeTab="care";
 function setTab(name){ activeTab=name; const tc=document.querySelector(".tab-content"); if(tc)tc.scrollTop=0; document.querySelectorAll(".tabsec").forEach(sec=>sec.classList.toggle("active",sec.dataset.tab===name)); document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("active",b.dataset.tab===name)); if(name==="quest")renderQuests(); if(name==="book")renderBook(); }
@@ -776,26 +838,27 @@ function renderQuests(){ const list=document.getElementById("questList"); list.i
 function claimQuest(id){ const q=QUESTS.find(x=>x.id===id); if(!q||game.quests.claimed[id]||!questDone(q))return; game.quests.claimed[id]=true; const r=q.reward; if(r.coin)game.coins+=r.coin; if(r.dia)game.diamonds+=r.dia; Sound.fanfare(); spawnParticles(0.5,0.5,"🎉",7); let m="🎁 보상 획득! "; if(r.coin)m+=`코인+${r.coin} `; if(r.dia)m+=`💎+${r.dia}`; toast(m); updateHUD(); renderQuests(); saveGame(); }
 document.getElementById("questList").addEventListener("pointerdown",e=>{ const btn=e.target.closest("button[data-q]"); if(btn){ e.stopPropagation(); claimQuest(btn.dataset.q); } });
 function miniFace(palName){ const p=PALETTES.find(x=>x.name===palName)||PALETTES[0]; return `<div class="mface">${hamsterSVG(p)}</div>`; }
-function renderBook(){ const sub=document.getElementById("bookSub"), list=document.getElementById("bookList"); if(!game.diary.length){ sub.textContent=""; list.innerHTML=`<div class="book-empty">아직 결혼한 가족이 없어요.<br>어른 햄스터를 💌결혼시키면<br>여기 가족 책에 사진과 함께 기록돼요!</div>`; return; }
-  sub.innerHTML=`💍 결혼 <b>${game.diary.length}</b>쌍 · 👶 새 가족 <b>${game.diary.length}</b>`;
-  list.innerHTML=game.diary.slice().reverse().map((e,i)=>{ const num=game.diary.length-i; return `<div class="book-item"><div class="book-no">#${num}</div><div class="fam"><div class="fam-mem">${miniFace(e.aPal)}<span>${e.a}${e.aSex}</span></div><span class="fam-x">💕</span><div class="fam-mem">${miniFace(e.bPal)}<span>${e.b}${e.bSex}</span></div><span class="fam-x">→</span><div class="fam-mem baby">${miniFace(e.babyPal)}<span>👶${e.baby}${e.babySex||""}</span></div></div></div>`; }).join(""); }
+function renderBook(){ const sub=document.getElementById("bookSub"), list=document.getElementById("bookList"); if(!game.diary.length){ sub.textContent=""; list.innerHTML=`<div class="book-empty">아직 결혼한 가족이 없어요.<br>어른 햄스터를 💌결혼시키면 기록돼요!<br><br>💡 결혼해 떠난 아기를 <b>입양</b>하면<br>다시 우리집에 와서 커요. 또 결혼시키면<br><b>최대 3대(代)</b>까지 가족이 이어져요!</div>`; return; }
+  const fams=new Set(game.diary.map(e=>e.lineageId==null?Math.random():e.lineageId));
+  sub.innerHTML=`💍 결혼 <b>${game.diary.length}</b>쌍 · 🏡 가문 <b>${fams.size}</b> · 👶 입양대기 <b>${game.descendants.length}</b>`;
+  list.innerHTML=game.diary.slice().reverse().map((e)=>{ const g=e.gen||1, bg=e.babyGen||g+1; return `<div class="book-item"><div class="book-side"><div class="book-gen">${g}대</div>${e.family?`<div class="book-fam">${e.family}</div>`:""}</div><div class="fam"><div class="fam-mem">${miniFace(e.aPal)}<span>${e.a}${e.aSex}</span></div><span class="fam-x">💕</span><div class="fam-mem">${miniFace(e.bPal)}<span>${e.b}${e.bSex}</span></div><span class="fam-x">→</span><div class="fam-mem baby">${miniFace(e.babyPal)}<span>👶${e.baby} <b>${bg}대</b></span></div></div></div>`; }).join(""); }
 habitat.addEventListener("pointerdown",()=>{ Sound.resume(); if(selectMode) setMode(null); });
 
 /* ================= Save / Load ================= */
-const SAVE_KEY="hamster_garden_v1";
-function saveGame(){ try{
+const SAVE_KEY="hamster_garden_v1"; let resetting=false;
+function saveGame(){ if(resetting) return; try{
   const data={ coins:game.coins, diamonds:game.diamonds, water:game.water, floorsBuilt:game.floorsBuilt, ladders:game.ladders.slice(),
     theme:game.theme, themesUnlocked:[...game.themesUnlocked], born:game.born, frog:!!game.frog, lizards:game.lizards.length,
-    hamsters:game.hamsters.filter(h=>!h._temp&&!h._leaving&&!h._hold).map(h=>({name:h.name,pal:h.pal.name,sex:h.sex,level:h.level,x:h.x,growth:h.growth,hunger:h.hunger,thirst:h.thirst,happiness:h.happiness})),
-    items:game.items.map(it=>({type:it.type,skin:it.skin,emo:it.emo,level:it.level,x:it.x,y:it.y})), diary:game.diary, abroad:game.abroad, quests:game.quests.claimed, stats:game.stats, houseName:game.houseName };
+    hamsters:game.hamsters.filter(h=>!h._temp&&!h._leaving&&!h._hold).map(h=>({name:h.name,pal:h.pal.name,sex:h.sex,level:h.level,x:h.x,growth:h.growth,hunger:h.hunger,thirst:h.thirst,happiness:h.happiness,gen:h.gen,lineageId:h.lineageId,family:h.family})),
+    items:game.items.map(it=>({type:it.type,skin:it.skin,emo:it.emo,level:it.level,x:it.x,y:it.y})), diary:game.diary, abroad:game.abroad, quests:game.quests.claimed, stats:game.stats, houseName:game.houseName, floorDeco:game.floorDeco.slice(), ladderDeco:game.ladderDeco.slice(), descendants:game.descendants, lineageSeq:game.lineageSeq };
   localStorage.setItem(SAVE_KEY, JSON.stringify(data));
 }catch(e){} }
 function loadGame(){ let data; try{ const s=localStorage.getItem(SAVE_KEY); if(!s) return false; data=JSON.parse(s); }catch(e){ return false; } if(!data) return false;
   game.coins=(data.coins!=null)?data.coins:60; game.diamonds=data.diamonds||0; game.water=(data.water!=null)?data.water:100;
   game.floorsBuilt=data.floorsBuilt||1; game.ladders=(Array.isArray(data.ladders)&&data.ladders.length===2)?data.ladders.slice():[false,false];
-  game.theme=data.theme||"default"; game.themesUnlocked=new Set((Array.isArray(data.themesUnlocked)&&data.themesUnlocked.length)?data.themesUnlocked:["default","sunset","forest","night"]); game.born=data.born||0; game.diary=Array.isArray(data.diary)?data.diary:[]; game.abroad=Array.isArray(data.abroad)?data.abroad:[]; game.quests.claimed=(data.quests&&typeof data.quests==="object")?data.quests:{}; game.stats=Object.assign({adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0},data.stats||{}); if(typeof data.houseName==="string"&&data.houseName.trim()) game.houseName=data.houseName.slice(0,12);
+  game.theme=data.theme||"default"; game.themesUnlocked=new Set((Array.isArray(data.themesUnlocked)&&data.themesUnlocked.length)?data.themesUnlocked:["default","sunset","forest","night"]); game.born=data.born||0; game.diary=Array.isArray(data.diary)?data.diary:[]; game.abroad=Array.isArray(data.abroad)?data.abroad:[]; game.quests.claimed=(data.quests&&typeof data.quests==="object")?data.quests:{}; game.stats=Object.assign({adopted:0,studied:0,decorBought:0,fed:0,grownAdult:0,decorSet:{},diaSet:{}},data.stats||{}); if(typeof data.houseName==="string"&&data.houseName.trim()) game.houseName=data.houseName.slice(0,12); game.floorDeco=(Array.isArray(data.floorDeco)&&data.floorDeco.length===2)?data.floorDeco.slice():[false,false]; game.ladderDeco=(Array.isArray(data.ladderDeco)&&data.ladderDeco.length===2)?data.ladderDeco.slice():[false,false]; game.descendants=Array.isArray(data.descendants)?data.descendants:[]; game.lineageSeq=data.lineageSeq||0;
   const t=THEMES.find(x=>x.key===game.theme)||THEMES[0]; habitat.style.background=t.bg;
-  (data.hamsters||[]).forEach(hh=>{ const pal=PALETTES.find(p=>p.name===hh.pal)||pick(PALETTES); const h=createHamster({palette:pal,name:hh.name,sex:hh.sex,level:hh.level||0,x:hh.x,growth:hh.growth}); if(hh.hunger!=null)h.hunger=hh.hunger; if(hh.thirst!=null)h.thirst=hh.thirst; if(hh.happiness!=null)h.happiness=hh.happiness; });
+  (data.hamsters||[]).forEach(hh=>{ const pal=PALETTES.find(p=>p.name===hh.pal)||pick(PALETTES); const h=createHamster({palette:pal,name:hh.name,sex:hh.sex,level:hh.level||0,x:hh.x,growth:hh.growth,gen:hh.gen||1,lineageId:(hh.lineageId!=null?hh.lineageId:null),family:hh.family||null}); if(hh.hunger!=null)h.hunger=hh.hunger; if(hh.thirst!=null)h.thirst=hh.thirst; if(hh.happiness!=null)h.happiness=hh.happiness; });
   (data.items||[]).forEach(ii=>{ const it=placeItem(ii.type,ii.skin,ii.emo); if(it){ it.level=ii.level||0; it.x=ii.x; it.y=ii.y; renderItem(it); } });
   for(let i=0;i<(data.lizards||0)&&i<LIZARD_MAX;i++) createLizard();
   if(data.frog) createFrog();
@@ -805,9 +868,12 @@ function loadGame(){ let data; try{ const s=localStorage.getItem(SAVE_KEY); if(!
 buildStructure();
 const loaded=loadGame();
 layout(); updateWater(); renderTitle();
-if(!loaded){ createHamster(); placeItem("wheel"); const w0=itemsOf("wheel")[0]; if(w0){ w0.x=0.18; w0.y=floorY(0); w0.level=0; renderItem(w0); } const ig=placeItem("igloo",null,"🛖"); if(ig){ ig.x=0.40; ig.y=floorY(0); ig.level=0; renderItem(ig); } }
+if(!loaded){ createHamster(); }
 updateHUD();
-try{ setInterval(saveGame,4000); window.addEventListener("pagehide",saveGame); window.addEventListener("beforeunload",saveGame); document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(); }); }catch(e){}
+try{ window.__autosave=setInterval(saveGame,4000); window.addEventListener("pagehide",saveGame); window.addEventListener("beforeunload",saveGame); document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(); }); }catch(e){}
+const startScreen=document.getElementById("startScreen"), startBtn=document.getElementById("startBtn"), startTitleEl=document.getElementById("startTitle");
+if(startTitleEl) startTitleEl.textContent=game.houseName;
+startBtn.addEventListener("pointerdown",()=>{ Sound.resume(); startScreen.classList.add("hide"); setTimeout(()=>{ startScreen.style.display="none"; },450); });
 checkReturns(); setInterval(checkReturns,5000);
 requestAnimationFrame(t=>{ lastT=t; loop(t); });
 </script>
